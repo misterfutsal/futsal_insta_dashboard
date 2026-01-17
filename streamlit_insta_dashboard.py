@@ -1,5 +1,3 @@
-#py -m streamlit run "C:\Users\Daniel\Dropbox\Mister Futsal\User-Auswertung\streamlit_insta_dashboard.py"
-
 import streamlit as st
 import pandas as pd
 import gspread
@@ -144,3 +142,4 @@ try:
 except Exception as e:
 
     st.error(f"Fehler im Dashboard: {e}")
+
