@@ -129,3 +129,7 @@ try:
         
         st.plotly_chart(fig_abs, use_container_width=True)
     else:
+        st.info("💡 Klicke oben links in die Ranking-Tabelle, um Details zu sehen.")
+
+except Exception as e:
+    st.error(f"Fehler im Dashboard: {e}")
