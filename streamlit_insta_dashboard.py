@@ -44,7 +44,7 @@ try:
     df_latest['STAND'] = pd.to_datetime(df_latest['DATE']).dt.strftime('%d.%m.%Y')
     
     df_latest = df_latest.sort_values(by='FOLLOWER', ascending=False).copy()
-    df_latest.insert(0, 'RANG', range(1, len(df_latest) + 1))
+    df_latest.insert("Auswahl für Detailanalyse", 'RANG', range(1, len(df_latest) + 1))
 
     # 2. Trend (4 Wochen Vergleich)
     latest_date_global = df['DATE'].max()
@@ -133,4 +133,5 @@ try:
 
 except Exception as e:
     st.error(f"Fehler im Dashboard: {e}")
+
 
