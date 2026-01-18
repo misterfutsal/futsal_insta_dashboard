@@ -106,7 +106,7 @@ try:
     st.divider()
 
     # --- UNTERER BEREICH: INDIVIDUALANALYSE ---
-    st.subheader("🔍 Individualanalyse")
+    st.subheader("🔍 Detailansicht täglich für ausgewählten Club")
     
     selected_club = None
     if selection and selection.selection.rows:
@@ -133,3 +133,4 @@ try:
 
 except Exception as e:
     st.error(f"Fehler im Dashboard: {e}")
+
