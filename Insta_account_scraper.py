@@ -9,6 +9,13 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 
+#Erstelle Session ID für Instagram Zugang
+session_id = os.getenv("INSTAGRAM_SESSION_ID")
+if session_id:
+    # Nutze das Session-Cookie, um sich als eingeloggter User auszugeben
+    L.context._session.cookies.set("sessionid", session_id)
+    print("✅ Login via Session-ID erfolgreich.")
+    
 # ================= CONFIGURATION =================
 SHEET_ID = "1_Ni1ALTrq3qkgXxgBaG2TNjRBodCEaYewhhTPq0aWfU"
 
@@ -165,3 +172,4 @@ except Exception as e:
     print(f"❌ KRITISCHER FEHLER: {e}")
 
 print("FERTIG!")
+
