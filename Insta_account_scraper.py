@@ -1,176 +1,138 @@
-import instaloader
+import streamlit as st
 import pandas as pd
-import time
-import random
-import re
 import gspread
-import os
-import json
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
-    
-# ================= CONFIGURATION =================
+import plotly.express as px
+from datetime import datetime, timedelta
+
+# --- Konfiguration ---
 SHEET_ID = "1_Ni1ALTrq3qkgXxgBaG2TNjRBodCEaYewhhTPq0aWfU"
 
-# Deine Liste der Instagram URLs (hier wieder alle einkommentiert)
-insta_urls = [
-    "https://www.instagram.com/ybbalkan/",
-    "https://www.instagram.com/tsvweilimdorf/",
-    "https://www.instagram.com/tsg1846_futsal/",
-    "https://www.instagram.com/fcg.futsal/",
-    "https://www.instagram.com/preussen06futsal/",
-    "https://www.instagram.com/mchfutsalclub/",
-    "https://www.instagram.com/futsaliciousessen/",
-    "https://www.instagram.com/wuppertaler_sv_futsal/",
-    "https://www.instagram.com/ffmg07_furious_futsal/",
-    "https://www.instagram.com/futsalpantherskoeln/",
-    "https://www.instagram.com/karlsruherscfutsal/",
-    "https://www.instagram.com/jahnfutsal/",
-    "https://www.instagram.com/fcregensburg/",
-    "https://www.instagram.com/futsal_munich_tsv_neuried/",
-    "https://www.instagram.com/fc.liria.1985.futsal/",
-    "https://www.instagram.com/ufk08/",
-    "https://www.instagram.com/eintrachtsuedring.futsal/",
-    "https://www.instagram.com/spbarrio96/",
-    "https://www.instagram.com/fcstpfutsal/",
-    "https://www.instagram.com/futsal_hamburg/",
-    "https://www.instagram.com/h96futsal/",
-    "https://www.instagram.com/futsalnbg/",
-    "https://www.instagram.com/hot05futsal/",
-    "https://www.instagram.com/osc_04_futsal/",
-    "https://www.instagram.com/hsvfutsal/",
-    "https://www.instagram.com/asc_futsal/",
-    "https://www.instagram.com/sv_pars/",
-    "https://www.instagram.com/sv98_futsal/",
-    "https://www.instagram.com/futsal_allgaeu/",
-    "https://www.instagram.com/fc_niederrhein_soccer_futsal/",
-    "https://www.instagram.com/sf_doenbergfutsal/",
-    "https://www.instagram.com/betonboysmunchen.e.v/",
-    "https://www.instagram.com/futsal.tvherbeck/",
-    "https://www.instagram.com/futsalfalken/",
-    "https://www.instagram.com/fc_mattheck_moers/",
-    "https://www.instagram.com/blunited.futsal/",
-    "https://www.instagram.com/alemanniaaachen_futsal/",
-    "https://www.instagram.com/mitteldeutscher_futsalclub/",
-    "https://www.instagram.com/fussball.gtsvffm1908/",
-    "https://www.instagram.com/pcfmuelheim/",
-    "https://www.instagram.com/holzpfostenschwerte/",
-    "https://www.instagram.com/nk_zagreb_dortmund_futsal/",
-    "https://www.instagram.com/alhuda98.futsal/",
-    "https://www.instagram.com/rsc.futsal/",
-    "https://www.instagram.com/ljiljanihamburg/",
-    "https://www.instagram.com/hamburgergsv.fussball/",
-    "https://www.instagram.com/croatia.hamburg.futsal/",
-    "https://www.instagram.com/blackforestfutsal/",
-    "https://www.instagram.com/afgbergstrasse/",
-    "https://www.instagram.com/futsalclubfrankfurt/",
-    "https://www.instagram.com/futsalclubbiberach/",
-    "https://www.instagram.com/futsalclubusora/",
-    "https://www.instagram.com/gsvaugsburg1934/",
-    "https://www.instagram.com/atleticoerlangen/",
-    "https://www.instagram.com/gsc_regensburg/",
-    "https://www.instagram.com/futsal_dragons_augsburg/",
-    "https://www.instagram.com/dfb.futsal/",
-    "https://www.instagram.com/dfb.u19.futsal.westfalen/",
-    "https://www.instagram.com/mister.futsal/"
-]
+st.set_page_config(page_title="Futsal Insta-Analytics", layout="wide")
 
-def get_google_sheet():
+@st.cache_data(ttl=3600)
+def load_data_from_sheets():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_json = os.getenv("GOOGLE_SHEETS_CREDS")
+    creds_dict = st.secrets["gcp_service_account"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     
-    if creds_json:
-        creds_dict = json.loads(creds_json)
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    else:
-        local_path = r"C:\Users\Daniel\Dropbox\Mister Futsal\User-Auswertung\futsal-instagram-stats-credentioals.json"
-        creds = ServiceAccountCredentials.from_json_keyfile_name(local_path, scope)
-        
     client = gspread.authorize(creds)
-    return client.open_by_key(SHEET_ID).sheet1
-
-def extract_username(url):
-    match = re.search(r"instagram\.com/([^/?]+)", url)
-    return match.group(1) if match else None
-
-# --- SCRAPING PROZESS ---
-print(f"[{datetime.now().strftime('%H:%M:%S')}] Starte Scraper...")
+    sheet = client.open_by_key(SHEET_ID).sheet1
+    
+    data = sheet.get_all_records()
+    df = pd.DataFrame(data)
+    
+    df.columns = [str(c).strip().upper() for c in df.columns]
+    
+    if 'DATE' in df.columns:
+        df['DATE'] = pd.to_datetime(df['DATE']).dt.date
+    
+    df['FOLLOWER'] = pd.to_numeric(df['FOLLOWER'], errors='coerce').fillna(0)
+    df = df.sort_values(by=['CLUB_NAME', 'DATE'])
+    df = df.drop_duplicates(subset=['CLUB_NAME', 'DATE'], keep='last')
+    
+    return df
 
 try:
-    # 1. Google Sheets Verbindung aufbauen
-    sheet = get_google_sheet()
-    all_data = sheet.get_all_records()
-    df_cloud = pd.DataFrame(all_data)
+    df = load_data_from_sheets()
+    st.title("Mister Futsal - Instagram Dashboard")
+
+    # --- DATEN-VORBEREITUNG ---
+    df_latest = df.sort_values('DATE').groupby('CLUB_NAME').last().reset_index()
+    df_latest['STAND'] = pd.to_datetime(df_latest['DATE']).dt.strftime('%d.%m.%Y')
+    df_latest = df_latest.sort_values(by='FOLLOWER', ascending=False).copy()
+    df_latest.index = range(1, len(df_latest) + 1)
+
+    # Berechnungen für die neue Überschrift
+    latest_date_global = df['DATE'].max()
+    latest_date_str = latest_date_global.strftime('%d.%m.%Y')
+    total_followers = int(df_latest['FOLLOWER'].sum())
+    # Formatierung mit Punkt als Tausender-Trennzeichen
+    total_followers_str = f"{total_followers:,}".replace(",", ".")
+
+    # --- NEUE GESAMT-ÜBERSCHRIFT ---
+    st.markdown(f"#### Aktuelle Anzahl von Instagram-Followern von deutschen Futsal-Club-Seiten (Stand {latest_date_str}): **{total_followers_str}**")
+    st.divider()
+
+    # Trend vorbereiten
+    target_date_4w = latest_date_global - timedelta(weeks=4)
+    available_dates = sorted(df['DATE'].unique())
+    closest_old_date = min(available_dates, key=lambda x: abs(x - target_date_4w))
     
-    today_date = datetime.now().strftime("%Y-%m-%d")
-    urls_already_done_today = []
+    df_now = df_latest[['CLUB_NAME', 'FOLLOWER', 'URL']]
+    df_then = df[df['DATE'] == closest_old_date][['CLUB_NAME', 'FOLLOWER']]
+    
+    df_trend = pd.merge(df_now, df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
+    df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
+    
+    df_trend_top10 = df_trend.sort_values(by='Zuwachs', ascending=False).head(10).copy()
+    df_trend_top10.index = range(1, len(df_trend_top10) + 1)
 
-    # 2. Prüfen, welche URLs heute schon geladen wurden
-    if not df_cloud.empty:
-        df_cloud.columns = [str(c).strip().upper() for c in df_cloud.columns]
-        if 'DATE' in df_cloud.columns:
-            df_today = df_cloud[df_cloud['DATE'].astype(str).str.strip() == today_date]
-            urls_already_done_today = df_today['URL'].str.strip().tolist()
+    # --- OBERER BEREICH ---
+    col_rank, col_trend = st.columns(2, gap="medium")
+    fixed_height_10_rows = 35 * 10 + 38 
 
-    urls_to_scrape = [url for url in insta_urls if url.strip() not in urls_already_done_today]
-
-    print(f"ℹ️ Gesamt: {len(insta_urls)} | Heute bereits erledigt: {len(urls_already_done_today)}")
-    print(f"🚀 Verbleibende Abrufe: {len(urls_to_scrape)}")
-
-    if not urls_to_scrape:
-        print("✅ Alles aktuell.")
-    else:
-        # --- WICHTIG: INITIALISIERUNG VON L UND LOGIN ---
-        L = instaloader.Instaloader()
-        session_id = os.getenv("INSTAGRAM_SESSION_ID")
+    with col_rank:
+        st.subheader("🏆 Aktuelles Ranking")
+        st.caption("( <-- Häkchen setzen für Details )")
         
-        if session_id:
-            L.context._session.cookies.set("sessionid", session_id)
-            print("✅ Login via Session-ID erfolgreich.")
-        else:
-            print("⚠️ Keine Session-ID gefunden - Scraping wird wahrscheinlich blockiert.")
+        selection = st.dataframe(
+            df_latest[['CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']],
+            column_config={
+                "_index": st.column_config.NumberColumn("Rang", width="small"),
+                "CLUB_NAME": st.column_config.TextColumn("Verein"),
+                "URL": st.column_config.LinkColumn("Instagram", display_text=r"https://www.instagram.com/([^/?#]+)"),
+                "FOLLOWER": st.column_config.NumberColumn("Follower", format="%d"),
+                "STAND": st.column_config.TextColumn("Stand")
+            },
+            use_container_width=True,
+            on_select="rerun",
+            selection_mode="single-row",
+            height=fixed_height_10_rows, 
+            hide_index=False
+        )
 
-        new_rows = []
+    with col_trend:
+        st.subheader("📈 Top 10 Trends (4 Wochen)")
+        st.caption(f"Vergleich mit {closest_old_date.strftime('%d.%m.%Y')}")
+        
+        st.dataframe(
+            df_trend_top10[['CLUB_NAME', 'URL', 'Zuwachs']],
+            column_config={
+                "_index": st.column_config.NumberColumn("Rang", width="small"),
+                "CLUB_NAME": st.column_config.TextColumn("Verein"),
+                "URL": st.column_config.LinkColumn("Instagram", display_text=r"https://www.instagram.com/([^/?#]+)"),
+                "Zuwachs": st.column_config.NumberColumn("Zuwachs", format="+%d")
+            },
+            use_container_width=True,
+            height=fixed_height_10_rows,
+            hide_index=False
+        )
 
-        # 3. Scraping-Schleife
-        for i, url in enumerate(urls_to_scrape, 1):
-            username = extract_username(url)
-            if not username: continue
+    st.divider()
 
-            success = False
-            attempts = 0
-            while attempts < 2 and not success:
-                try:
-                    print(f"[{i}/{len(urls_to_scrape)}] @{username}...")
-                    profile = instaloader.Profile.from_username(L.context, username)
-                    
-                    new_rows.append([
-                        today_date,
-                        profile.full_name,
-                        f"@{username}",
-                        profile.followers,
-                        url.strip()
-                    ])
-                    success = True
-                    # Sicherheits-Pause gegen Blockaden (30-60 Sekunden)
-                    time.sleep(random.uniform(90, 200)) 
-                    
-                except Exception as e:
-                    attempts += 1
-                    print(f"⚠️ Fehler bei {username}: {e}. Versuch {attempts}/2...")
-                    time.sleep(60)
+    # --- UNTERER BEREICH ---
+    st.subheader("🔍 Detailanalyse")
+    
+    selected_club = None
+    if selection and selection.selection.rows:
+        selected_row_idx = selection.selection.rows[0]
+        selected_club = df_latest.iloc[selected_row_idx]['CLUB_NAME']
+    
+    if selected_club:
+        st.info(f"Analyse für: **{selected_club}**")
+        club_data = df[df['CLUB_NAME'] == selected_club].sort_values(by='DATE')
 
-        # 4. Ergebnisse hochladen
-        if new_rows:
-            print(f"Schreibe {len(new_rows)} Zeilen...")
-            sheet.append_rows(new_rows)
-            # Sortierung (Datum absteigend, Follower absteigend)
-            sheet.sort((1, 'des'), (4, 'des'), range='A2:E50000')
-            print("✅ Cloud-Sheet erfolgreich aktualisiert.")
+        fig_abs = px.line(
+            club_data, x='DATE', y='FOLLOWER', 
+            title=f"Wie sind die Fanzahlen gewachsen?",
+            markers=True,
+            color_discrete_sequence=['#00CC96']
+        )
+        fig_abs.update_layout(hovermode="x unified")
+        st.plotly_chart(fig_abs, use_container_width=True)
+    else:
+        st.info("💡 Klicke oben links auf ein Feld, um eine Kurve zu sehen!")
 
 except Exception as e:
-    print(f"❌ KRITISCHER FEHLER: {e}")
-
-print("FERTIG!")
-
-
+    st.error(f"Oh weh, ein kleiner Fehler: {e}")
