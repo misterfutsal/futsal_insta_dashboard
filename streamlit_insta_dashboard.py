@@ -35,24 +35,24 @@ try:
     df_latest = df.sort_values('DATE').groupby('CLUB_NAME').last().reset_index()
     df_latest = df_latest.sort_values(by='FOLLOWER', ascending=False)
     df_latest.insert(0, 'RANG', range(1, len(df_latest) + 1))
-    
+    df_latest['STAND_STR'] = pd.to_datetime(df_latest['DATE']).dt.strftime('%d.%m.%Y')
+
     akt_datum = df['DATE'].max().strftime('%d.%m.%Y')
     summe_follower = f"{int(df_latest['FOLLOWER'].sum()):,}".replace(",", ".")
     
-    st.markdown(f"#### Aktuelle Follower (Stand {akt_datum}): :yellow[**{summe_follower}**]")
+    st.markdown(f"#### Aktuelle Follower aller Futsal-Clubs (Stand {akt_datum}): :yellow[**{summe_follower}**]")
     st.divider()
 
-    # --- OBERE REIHE ---
+    # --- OBERE REIHE: Ranking & Detailanalyse ---
     row1_col1, row1_col2 = st.columns(2, gap="medium")
     h_tables = 400
 
     with row1_col1:
         st.subheader("🏆 Aktuelles Ranking")
         selection = st.dataframe(
-            df_latest[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER']],
+            df_latest[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND_STR']],
             column_config={
                 "RANG": st.column_config.NumberColumn("Rang", width="small"),
-                "CLUB_NAME": "Verein",
                 "URL": st.column_config.LinkColumn("Instagram", display_text=r"https://www.instagram.com/([^/?#]+)"),
                 "FOLLOWER": st.column_config.NumberColumn("Follower", format="%d")
             },
@@ -72,15 +72,17 @@ try:
             fig_detail = px.line(club_data, x='DATE', y='FOLLOWER', title=f"Verlauf: {sel_club}", markers=True, color_discrete_sequence=['#00CC96'])
             st.plotly_chart(fig_detail, use_container_width=True)
         else:
-            st.info("💡 Klicke links auf einen Verein.")
+            st.info("💡 Klicke links auf einen Verein für Details.")
 
     st.divider()
 
-    # --- UNTERE REIHE ---
+    # --- UNTERE REIHE: Trends & Gesamtverlauf ---
     row2_col1, row2_col2 = st.columns(2, gap="medium")
 
     with row2_col1:
-        st.subheader("📈 Veränderung (4 Wochen)")
+        st.subheader("📈 Veränderung seit dem 15.01.2026")
+        
+        # Trend-Berechnung
         latest_date_global = df['DATE'].max()
         target_date_4w = latest_date_global - timedelta(weeks=4)
         available_dates = sorted(df['DATE'].unique())
@@ -90,6 +92,7 @@ try:
         df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
         df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
         
+        # Sortiert von Max nach Min und zeigt ALLE Clubs
         df_trend_all = df_trend.sort_values(by='Zuwachs', ascending=False).copy()
         df_trend_all.insert(0, 'RANG', range(1, len(df_trend_all) + 1))
 
@@ -97,18 +100,21 @@ try:
             df_trend_all[['RANG', 'CLUB_NAME', 'Zuwachs']],
             column_config={
                 "RANG": st.column_config.NumberColumn("Rang", width="small"),
-                "Zuwachs": st.column_config.NumberColumn("Zuwachs", format="%+d")
+                "Zuwachs": st.column_config.NumberColumn("Zuwachs", format="+%d")
             },
             hide_index=True,
             use_container_width=True,
-            height=h_tables
+            height=h_tables # Macht die Liste scrollbar
         )
 
     with row2_col2:
-        st.subheader("🌐 Gesamtentwicklung")
+        st.subheader("🌐 Gesamtentwicklung Deutschland")
         df_total_history = df.groupby('DATE')['FOLLOWER'].sum().reset_index()
-        fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', markers=True, color_discrete_sequence=['#FFB200'])
+        fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200'])
         st.plotly_chart(fig_total, use_container_width=True)
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
+
+
