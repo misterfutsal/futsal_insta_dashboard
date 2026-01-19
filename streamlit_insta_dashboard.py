@@ -34,22 +34,22 @@ try:
     df_latest = df.sort_values('DATE').groupby('CLUB_NAME').last().reset_index()
     df_latest = df_latest.sort_values(by='FOLLOWER', ascending=False)
     df_latest.insert(0, 'RANG', range(1, len(df_latest) + 1))
-    df_latest['STAND_STR'] = pd.to_datetime(df_latest['DATE']).dt.strftime('%d.%m.%Y')
-
-    # ZAHLEN ZU TEXT FÜR LINKSBÜNDIGKEIT
+    
+    # Zahlen in Text umwandeln für linksbündige Tabellen
     df_latest_display = df_latest.copy()
     df_latest_display['RANG'] = df_latest_display['RANG'].astype(str)
     df_latest_display['FOLLOWER'] = df_latest_display['FOLLOWER'].apply(lambda x: f"{int(x):,}".replace(",", "."))
+    df_latest_display['STAND_STR'] = pd.to_datetime(df_latest_display['DATE']).dt.strftime('%d.%m.%Y')
 
     akt_datum = df['DATE'].max().strftime('%d.%m.%Y')
     summe_follower = f"{int(df_latest['FOLLOWER'].sum()):,}".replace(",", ".")
 
-    # --- KOPFZEILE MIT LOGO (Überschrift näher am Logo) ---
-    # Das Verhältnis [1, 10] macht die Logo-Spalte sehr schmal
-    col_logo, col_titel = st.columns([1, 10])
+    # --- KOPFZEILE (LOGO & TITEL GANZ OBEN) ---
+    # Die Zahlen [0.5, 5] sorgen dafür, dass das Logo kaum Platz wegnimmt
+    col_logo, col_titel = st.columns([0.5, 5])
     
     with col_logo:
-        st.image("logo_instagram_dashboard.png", width=250)
+        st.image("logo_instagram_dashboard.png", width=100)
         
     with col_titel:
         st.title("Mister Futsal - Instagram Dashboard")
@@ -57,7 +57,7 @@ try:
 
     st.divider()
 
-    # --- OBERE REIHE: Ranking & Detailanalyse ---
+    # --- OBERE REIHE ---
     row1_col1, row1_col2 = st.columns(2, gap="medium")
     h_tables = 400
 
@@ -90,11 +90,11 @@ try:
 
     st.divider()
 
-    # --- UNTERE REIHE: Trends & Gesamtverlauf ---
+    # --- UNTERE REIHE ---
     row2_col1, row2_col2 = st.columns(2, gap="medium")
 
     with row2_col1:
-        st.subheader(f"📈 Veränderung seit dem 15.01.2026")
+        st.subheader("📈 Veränderung (Trend)")
         latest_date_global = df['DATE'].max()
         target_date_4w = latest_date_global - timedelta(weeks=4)
         available_dates = sorted(df['DATE'].unique())
@@ -107,7 +107,7 @@ try:
         df_trend = df_trend.sort_values(by='Zuwachs_Zahl', ascending=False)
         df_trend.insert(0, 'RANG', range(1, len(df_trend) + 1))
         
-        # ZAHLEN ZU TEXT FÜR LINKSBÜNDIGKEIT
+        # Linksbündig machen
         df_trend['RANG'] = df_trend['RANG'].astype(str)
         df_trend['Zuwachs'] = df_trend['Zuwachs_Zahl'].apply(lambda x: f"+{int(x)}" if x > 0 else str(int(x)))
 
@@ -130,5 +130,3 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
-
-
