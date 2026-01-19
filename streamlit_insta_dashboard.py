@@ -44,8 +44,7 @@ try:
     akt_datum = df['DATE'].max().strftime('%d.%m.%Y')
     summe_follower = f"{int(df_latest['FOLLOWER'].sum()):,}".replace(",", ".")
 
-    # --- KOPFZEILE (LOGO & TITEL GANZ OBEN) ---
-    # Die Zahlen [0.5, 5] sorgen dafür, dass das Logo kaum Platz wegnimmt
+    # --- KOPFZEILE (LOGO & TITEL) ---
     col_logo, col_titel = st.columns([1, 5])
     
     with col_logo:
@@ -53,7 +52,9 @@ try:
         
     with col_titel:
         st.title("Mister Futsal - Instagram Dashboard")
-        st.markdown(f"#### Aktuelle Follower aller Futsal-Clubs (Stand {akt_datum}): :yellow[**{summe_follower}**]")
+
+    # Hier steht der Text nun ganz links unter dem Logo und Titel
+    st.markdown(f"##### Aktuelle Follower aller Futsal-Clubs (Stand {akt_datum}): :yellow[**{summe_follower}**]")
 
     st.divider()
 
@@ -130,4 +131,3 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
-
