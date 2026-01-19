@@ -92,7 +92,6 @@ try:
         df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
         df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
         
-        # Sortiert von Max nach Min und zeigt ALLE Clubs
         df_trend_all = df_trend.sort_values(by='Zuwachs', ascending=False).copy()
         df_trend_all.insert(0, 'RANG', range(1, len(df_trend_all) + 1))
 
@@ -100,11 +99,12 @@ try:
             df_trend_all[['RANG', 'CLUB_NAME', 'Zuwachs']],
             column_config={
                 "RANG": st.column_config.NumberColumn("Rang", width="small"),
-                "Zuwachs": st.column_config.NumberColumn("Zuwachs", format="+%d")
+                # FIX: Das % muss VOR dem + stehen, damit negative Zahlen richtig angezeigt werden
+                "Zuwachs": st.column_config.NumberColumn("Zuwachs", format="%+d")
             },
             hide_index=True,
             use_container_width=True,
-            height=h_tables # Macht die Liste scrollbar
+            height=h_tables
         )
 
     with row2_col2:
@@ -115,6 +115,3 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
-
-
-
