@@ -51,7 +51,7 @@ try:
         st.title("Mister Futsal - Instagram Dashboard")
 
     st.markdown(f"##### Aktuelle Follower aller Futsal-Clubs (Stand {akt_datum}): :yellow[**{summe_follower}**]")
-    st.markdown("Stand {akt_datum} [www.misterfutsal.de](https://www.misterfutsal.de)")
+    st.markdown(f"[www.misterfutsal.de](https://www.misterfutsal.de) | :grey[Stand {akt_datum}]")
     st.divider()
 
     # --- OBERE REIHE ---
@@ -128,4 +128,5 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
 
