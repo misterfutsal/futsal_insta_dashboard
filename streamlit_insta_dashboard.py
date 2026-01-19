@@ -105,14 +105,14 @@ try:
         # TOP 10 Grafik
         df_top10 = df_trend.sort_values(by='Zuwachs', ascending=False).head(10)
         fig_top = px.bar(df_top10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                         title="🚀 Top 10 Gewinner", color_discrete_sequence=['#00CC96'])
+                         title="🚀 Top 10 Gewinner seit 15.01.2026", color_discrete_sequence=['#00CC96'])
         fig_top.update_layout(yaxis={'categoryorder':'total ascending'})
         st.plotly_chart(fig_top, use_container_width=True)
 
         # BOTTOM 10 Grafik
         df_bottom10 = df_trend.sort_values(by='Zuwachs', ascending=True).head(10)
         fig_bottom = px.bar(df_bottom10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                            title="📉 Geringstes Wachstum", color_discrete_sequence=['#FF4B4B'])
+                            title="📉 Verlierer seit 15.01.2026", color_discrete_sequence=['#FF4B4B'])
         fig_bottom.update_layout(yaxis={'categoryorder':'total descending'})
         st.plotly_chart(fig_bottom, use_container_width=True)
 
@@ -124,3 +124,4 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
