@@ -80,7 +80,7 @@ try:
     row2_col1, row2_col2 = st.columns(2, gap="medium")
 
     with row2_col1:
-        st.subheader("📈 Alle Trends (seit 15.01.2026)")
+        st.subheader("📈 Veränderung seit dem 15.01.2026")
         
         # Trend-Berechnung
         latest_date_global = df['DATE'].max()
@@ -115,4 +115,5 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
 
