@@ -46,10 +46,10 @@ try:
 
     # --- KOPFZEILE (LOGO & TITEL GANZ OBEN) ---
     # Die Zahlen [0.5, 5] sorgen dafür, dass das Logo kaum Platz wegnimmt
-    col_logo, col_titel = st.columns([0.5, 5])
+    col_logo, col_titel = st.columns([1, 5])
     
     with col_logo:
-        st.image("logo_instagram_dashboard.png", width=100)
+        st.image("logo_instagram_dashboard.png", width=250)
         
     with col_titel:
         st.title("Mister Futsal - Instagram Dashboard")
@@ -130,3 +130,4 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
