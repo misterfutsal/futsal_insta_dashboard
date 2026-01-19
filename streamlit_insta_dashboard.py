@@ -53,8 +53,10 @@ try:
     with col_titel:
         st.title("Mister Futsal - Instagram Dashboard")
 
-    # Hier steht der Text nun ganz links unter dem Logo und Titel
+    # Follower-Zeile
     st.markdown(f"##### Aktuelle Follower aller Futsal-Clubs (Stand {akt_datum}): :yellow[**{summe_follower}**]")
+    # NEU: Webseiten-Link in normaler Textgröße (wie in der Tabelle)
+    st.markdown("[www.misterfutsal.de](https://www.misterfutsal.de)")
 
     st.divider()
 
