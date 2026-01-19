@@ -80,6 +80,8 @@ try:
             sel_club = df_latest.iloc[sel_idx]['CLUB_NAME']
             club_data = df[df['CLUB_NAME'] == sel_club].sort_values('DATE')
             fig_detail = px.line(club_data, x='DATE', y='FOLLOWER', title=f"Verlauf: {sel_club}", markers=True, color_discrete_sequence=['#00CC96'])
+            # Achse sauber machen:
+            fig_detail.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
             st.plotly_chart(fig_detail, use_container_width=True, config={'staticPlot': True})
         else:
             st.info("💡 Klicke links auf einen Verein für Details.")
@@ -99,7 +101,6 @@ try:
         df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
         df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
 
-        # TOP 10 - Jetzt mit geraden Zahlen (textangle=0)
         df_top10 = df_trend.sort_values(by='Zuwachs', ascending=False).head(10)
         fig_top = px.bar(df_top10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
                          title="🚀 Top 10 Gewinner", color_discrete_sequence=['#00CC96'], text='Zuwachs')
@@ -107,7 +108,6 @@ try:
         fig_top.update_layout(yaxis={'categoryorder':'total ascending'})
         st.plotly_chart(fig_top, use_container_width=True, config={'staticPlot': True})
 
-        # BOTTOM 10 - Jetzt mit geraden Zahlen (textangle=0)
         df_bottom10 = df_trend.sort_values(by='Zuwachs', ascending=True).head(10)
         fig_bottom = px.bar(df_bottom10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
                             title="📉 Geringstes Wachstum", color_discrete_sequence=['#FF4B4B'], text='Zuwachs')
@@ -119,6 +119,8 @@ try:
         st.subheader("🌐 Gesamtentwicklung Deutschland")
         df_total_history = df.groupby('DATE')['FOLLOWER'].sum().reset_index()
         fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200'])
+        # Achse sauber machen:
+        fig_total.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
         st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': True})
 
 except Exception as e:
