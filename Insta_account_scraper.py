@@ -155,7 +155,7 @@ try:
                     ])
                     success = True
                     # Sicherheits-Pause gegen Blockaden (30-60 Sekunden)
-                    time.sleep(random.uniform(90, 200)) 
+                    time.sleep(random.uniform(45, 90)) 
                     
                 except Exception as e:
                     attempts += 1
@@ -174,5 +174,6 @@ except Exception as e:
     print(f"❌ KRITISCHER FEHLER: {e}")
 
 print("FERTIG!")
+
 
 
