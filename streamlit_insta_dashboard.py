@@ -83,4 +83,50 @@ try:
             sel_idx = selection.selection.rows[0]
             sel_club = df_latest.iloc[sel_idx]['CLUB_NAME']
             club_data = df[df['CLUB_NAME'] == sel_club].sort_values('DATE')
-            fig_detail = px.line(club_data, x='DATE', y='FOLLOWER', title=f"Verlauf: {sel_
+            fig_detail = px.line(club_data, x='DATE', y='FOLLOWER', title=f"Verlauf: {sel_club}", markers=True, color_discrete_sequence=['#00CC96'])
+            st.plotly_chart(fig_detail, use_container_width=True)
+        else:
+            st.info("💡 Klicke links auf einen Verein für Details.")
+
+    st.divider()
+
+    # --- UNTERE REIHE: Trends & Gesamtverlauf ---
+    row2_col1, row2_col2 = st.columns(2, gap="medium")
+
+    with row2_col1:
+        st.subheader(f"📈 Veränderung seit dem 15.01.2026")
+        latest_date_global = df['DATE'].max()
+        target_date_4w = latest_date_global - timedelta(weeks=4)
+        available_dates = sorted(df['DATE'].unique())
+        closest_old_date = min(available_dates, key=lambda x: abs(x - target_date_4w))
+        
+        df_then = df[df['DATE'] == closest_old_date][['CLUB_NAME', 'FOLLOWER']]
+        df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
+        df_trend['Zuwachs_Zahl'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
+        
+        df_trend = df_trend.sort_values(by='Zuwachs_Zahl', ascending=False)
+        df_trend.insert(0, 'RANG', range(1, len(df_trend) + 1))
+        
+        # ZAHLEN ZU TEXT FÜR LINKSBÜNDIGKEIT
+        df_trend['RANG'] = df_trend['RANG'].astype(str)
+        df_trend['Zuwachs'] = df_trend['Zuwachs_Zahl'].apply(lambda x: f"+{int(x)}" if x > 0 else str(int(x)))
+
+        st.dataframe(
+            df_trend[['RANG', 'CLUB_NAME', 'Zuwachs']],
+            column_config={
+                "RANG": st.column_config.TextColumn("Rang"),
+                "Zuwachs": st.column_config.TextColumn("Zuwachs")
+            },
+            hide_index=True,
+            use_container_width=True,
+            height=h_tables
+        )
+
+    with row2_col2:
+        st.subheader("🌐 Gesamtentwicklung Deutschland")
+        df_total_history = df.groupby('DATE')['FOLLOWER'].sum().reset_index()
+        fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200'])
+        st.plotly_chart(fig_total, use_container_width=True)
+
+except Exception as e:
+    st.error(f"Fehler: {e}")
