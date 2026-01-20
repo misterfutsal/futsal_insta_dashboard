@@ -57,7 +57,7 @@ try:
 
     # --- OBERE REIHE ---
     row1_col1, row1_col2 = st.columns(2, gap="medium")
-    h_tables = 400
+    h_tables = 800
 
     with row1_col1:
         st.subheader("🏆 Aktuelles Ranking")
@@ -127,6 +127,7 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
 
 
 
