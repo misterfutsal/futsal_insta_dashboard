@@ -43,11 +43,13 @@ try:
     summe_follower = f"{int(df_latest['FOLLOWER'].sum()):,}".replace(",", ".")
 
     # --- KOPFZEILE ---
-    col_logo, col_titel = st.columns([1])
-    with col_logo:
-        st.image("logo_instagram_dashboard.png", width=250)
+    # col_logo, col_titel = st.columns([1])
+    # with col_logo:
+    #     st.image("logo_instagram_dashboard.png", width=250)
     # with col_titel:
     #     st.title("Mister Futsal - Instagram Dashboard")
+
+    st.image("logo_instagram_dashboard.png", width=250)
 
     st.markdown(f"##### Gesamt Follower: :yellow[**{summe_follower}**]")
     st.markdown(f"[www.misterfutsal.de](https://www.misterfutsal.de) | :grey[Stand {akt_datum}]")
@@ -125,6 +127,7 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
 
 
 
