@@ -122,12 +122,14 @@ try:
         df_total_history = df.groupby('DATE')['FOLLOWER'].sum().reset_index()
         fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200'])
         fig_total.update_yaxes(tickformat="d")
+        fig_total.update_layout(separators=',.')
         # Achse sauber machen:
         fig_total.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
         st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': True})
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
 
 
 
