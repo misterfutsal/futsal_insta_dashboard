@@ -61,7 +61,7 @@ try:
 
     with row1_col1:
         st.subheader("🏆 Aktuelles Ranking")
-        st.caption("👈 Klicke auf einen Verein in der Liste, um rechts die Details zu sehen!")
+        st.caption("👈 Für Detailansicht eines Vereins links das Auswahlkästchen anklicken")
         selection = st.dataframe(
             df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER']],
             column_config={
@@ -131,6 +131,7 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
 
 
 
