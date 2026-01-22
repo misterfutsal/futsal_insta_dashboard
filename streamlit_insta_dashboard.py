@@ -112,14 +112,14 @@ try:
 
         df_top10 = df_trend.sort_values(by='Zuwachs', ascending=False).head(10)
         fig_top = px.bar(df_top10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                         title="🚀 Top 10 Gewinner", color_discrete_sequence=['#00CC96'], text='Zuwachs')
+                         title="🚀 Top 10 Gewinner (seit dem 15.01.2026)", color_discrete_sequence=['#00CC96'], text='Zuwachs')
         fig_top.update_traces(textposition='inside', insidetextanchor='start', textangle=0)
         fig_top.update_layout(yaxis={'categoryorder':'total ascending'})
         st.plotly_chart(fig_top, use_container_width=True, config={'staticPlot': True})
 
         df_bottom10 = df_trend.sort_values(by='Zuwachs', ascending=True).head(10)
         fig_bottom = px.bar(df_bottom10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                            title="📉 Geringstes Wachstum", color_discrete_sequence=['#FF4B4B'], text='Zuwachs')
+                            title="📉 Geringstes Wachstum (seit dem 15.01.2026)", color_discrete_sequence=['#FF4B4B'], text='Zuwachs')
         fig_bottom.update_traces(textposition='inside', insidetextanchor='start', textangle=0)
         fig_bottom.update_layout(yaxis={'categoryorder':'total descending'})
         st.plotly_chart(fig_bottom, use_container_width=True, config={'staticPlot': True})
@@ -135,3 +135,4 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
