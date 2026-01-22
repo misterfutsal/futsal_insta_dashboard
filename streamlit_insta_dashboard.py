@@ -43,12 +43,6 @@ try:
     summe_follower = f"{int(df_latest['FOLLOWER'].sum()):,}".replace(",", ".")
 
     # --- KOPFZEILE ---
-    # col_logo, col_titel = st.columns([1])
-    # with col_logo:
-    #     st.image("logo_instagram_dashboard.png", width=250)
-    # with col_titel:
-    #     st.title("Mister Futsal - Instagram Dashboard")
-
     st.image("logo_instagram_dashboard.png", width=350)
 
     st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
@@ -61,7 +55,7 @@ try:
 
     with row1_col1:
         st.subheader("🏆 Aktuelles Ranking")
-        st.markdown("**:yellow[👇 Klick hier auf einen Verein für eine Detailansicht!]**")
+        st.markdown("**:yellow[👇 Wähle hier einen oder mehrere Vereine aus!]**")
         selection = st.dataframe(
             df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER']],
             column_config={
@@ -71,100 +65,7 @@ try:
             },
             hide_index=True,
             on_select="rerun",
-            selection_mode="multi-row",
+            selection_mode="multi-row", # GEÄNDERT: Mehrere Zeilen erlaubt
             use_container_width=True,
             height=h_tables
         )
-
-    with row1_col2:
-    st.subheader("🔍 Detailanalyse")
-    # Prüfen, ob überhaupt etwas ausgewählt wurde
-    if selection and selection.selection.rows:
-        # 1. Alle ausgewählten Vereine finden
-        sel_indices = selection.selection.rows
-        sel_clubs = df_latest.iloc[sel_indices]['CLUB_NAME'].tolist()
-        
-        # 2. Daten für alle gewählten Vereine filtern
-        plot_data = df[df['CLUB_NAME'].isin(sel_clubs)].sort_values(['CLUB_NAME', 'DATE'])
-        
-        # 3. Das Diagramm zeichnen (mit 'color', damit jeder Verein eine eigene Linie hat)
-        fig_detail = px.line(
-            plot_data, 
-            x='DATE', 
-            y='FOLLOWER', 
-            color='CLUB_NAME', # Das macht die bunten Linien!
-            title="Vergleich: " + ", ".join(sel_clubs), 
-            markers=True
-        )
-        
-        fig_detail.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
-        st.plotly_chart(fig_detail, use_container_width=True) # staticPlot entfernt für Interaktion
-    else:
-        st.info("💡 Klicke links auf einen oder mehrere Vereine für Details.")
-    st.divider()
-
-    # --- UNTERE REIHE ---
-    row2_col1, row2_col2 = st.columns(2, gap="medium")
-
-    with row2_col1:
-        st.subheader("📈 Wachstumstrends")
-        latest_date_global = df['DATE'].max()
-        target_date_4w = latest_date_global - timedelta(weeks=4)
-        available_dates = sorted(df['DATE'].unique())
-        closest_old_date = min(available_dates, key=lambda x: abs(x - target_date_4w))
-        df_then = df[df['DATE'] == closest_old_date][['CLUB_NAME', 'FOLLOWER']]
-        df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
-        df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
-
-        df_top10 = df_trend.sort_values(by='Zuwachs', ascending=False).head(10)
-        fig_top = px.bar(df_top10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                         title="🚀 Top 10 Gewinner (seit dem 15.01.2026)", color_discrete_sequence=['#00CC96'], text='Zuwachs')
-        fig_top.update_traces(textposition='inside', insidetextanchor='start', textangle=0)
-        fig_top.update_layout(yaxis={'categoryorder':'total ascending'})
-        st.plotly_chart(fig_top, use_container_width=True, config={'staticPlot': True})
-
-        df_bottom10 = df_trend.sort_values(by='Zuwachs', ascending=True).head(10)
-        fig_bottom = px.bar(df_bottom10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                            title="📉 Geringstes Wachstum (seit dem 15.01.2026)", color_discrete_sequence=['#FF4B4B'], text='Zuwachs')
-        fig_bottom.update_traces(textposition='inside', insidetextanchor='start', textangle=0)
-        fig_bottom.update_layout(yaxis={'categoryorder':'total descending'})
-        st.plotly_chart(fig_bottom, use_container_width=True, config={'staticPlot': True})
-
-    with row2_col2:
-        st.subheader("🌐 Gesamtentwicklung Deutschland")
-        df_total_history = df.groupby('DATE')['FOLLOWER'].sum().reset_index()
-        fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200'])
-        fig_total.update_layout(separators=',.')
-        fig_total.update_yaxes(tickformat=',d')
-        
-        # Achse sauber machen:
-        fig_total.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
-        st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': True})
-
-except Exception as e:
-    st.error(f"Fehler: {e}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
