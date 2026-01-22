@@ -77,18 +77,30 @@ try:
         )
 
     with row1_col2:
-        st.subheader("🔍 Detailanalyse")
-        if selection and selection.selection.rows:
-            sel_idx = selection.selection.rows[0]
-            sel_club = df_latest.iloc[sel_idx]['CLUB_NAME']
-            club_data = df[df['CLUB_NAME'] == sel_club].sort_values('DATE')
-            fig_detail = px.line(club_data, x='DATE', y='FOLLOWER', title=f"Verlauf: {sel_club}", markers=True, color_discrete_sequence=['#00CC96'])
-            # Achse sauber machen:
-            fig_detail.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
-            st.plotly_chart(fig_detail, use_container_width=True, config={'staticPlot': True})
-        else:
-            st.info("💡 Klicke links auf einen Verein für Details.")
-
+    st.subheader("🔍 Detailanalyse")
+    # Prüfen, ob überhaupt etwas ausgewählt wurde
+    if selection and selection.selection.rows:
+        # 1. Alle ausgewählten Vereine finden
+        sel_indices = selection.selection.rows
+        sel_clubs = df_latest.iloc[sel_indices]['CLUB_NAME'].tolist()
+        
+        # 2. Daten für alle gewählten Vereine filtern
+        plot_data = df[df['CLUB_NAME'].isin(sel_clubs)].sort_values(['CLUB_NAME', 'DATE'])
+        
+        # 3. Das Diagramm zeichnen (mit 'color', damit jeder Verein eine eigene Linie hat)
+        fig_detail = px.line(
+            plot_data, 
+            x='DATE', 
+            y='FOLLOWER', 
+            color='CLUB_NAME', # Das macht die bunten Linien!
+            title="Vergleich: " + ", ".join(sel_clubs), 
+            markers=True
+        )
+        
+        fig_detail.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
+        st.plotly_chart(fig_detail, use_container_width=True) # staticPlot entfernt für Interaktion
+    else:
+        st.info("💡 Klicke links auf einen oder mehrere Vereine für Details.")
     st.divider()
 
     # --- UNTERE REIHE ---
@@ -131,6 +143,7 @@ try:
 
 except Exception as e:
     st.error(f"Fehler: {e}")
+
 
 
 
