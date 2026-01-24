@@ -11,9 +11,10 @@ ZUSCHAUER_SHEET_ID = "14puepYtteWGPD1Qv89gCpZijPm5Yrgr8glQnGBh3PXM"
 
 st.set_page_config(page_title="Futsal Insta-Analytics", layout="wide")
 
-# --- STYLING (Blau/Gelb Tabs) ---
+# --- STYLING (PROFESSIONAL DESIGN UPDATE) ---
 st.markdown("""
 <style>
+    /* --- TAB STYLING (Original) --- */
     .stTabs [data-baseweb="tab-list"] { gap: 8px; }
     .stTabs [data-baseweb="tab"] {
         background-color: #f0f2f6; padding-top: 10px; padding-bottom: 10px;
@@ -23,6 +24,47 @@ st.markdown("""
     }
     .stTabs [data-baseweb="tab"][aria-selected="true"] p {
         color: #FFD700 !important; font-weight: bold;
+    }
+
+    /* --- NEU: SELECTBOX & INPUT DESIGN (High Visibility) --- */
+    
+    /* Der Container der Dropdown-Liste */
+    div[data-baseweb="select"] > div {
+        background-color: #FDFDFD; /* Fast Weiß */
+        border: 2px solid #0047AB; /* Fetter blauer Rand */
+        border-radius: 8px; /* Leicht abgerundet */
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Leichter Schatten für Tiefe */
+    }
+
+    /* Der Text innerhalb der Dropdown-Liste */
+    div[data-baseweb="select"] span {
+        font-weight: 600;
+        color: #333;
+    }
+
+    /* Das Label über der Dropdown-Liste (z.B. "Wähle einen Verein") */
+    .stSelectbox label p {
+        font-size: 18px !important;
+        color: #0047AB !important;
+        font-weight: 800 !important;
+        margin-bottom: 5px;
+    }
+
+    /* Das Icon (Pfeil) in der Selectbox einfärben */
+    div[data-baseweb="select"] svg {
+        fill: #0047AB !important;
+    }
+
+    /* --- NEU: DATAFRAME HINWEIS --- */
+    /* Macht den Text "Wähle hier..." auffälliger */
+    .instruction-text {
+        background-color: #FFF9C4; /* Helles Gelb */
+        padding: 10px;
+        border-left: 5px solid #FFD700;
+        border-radius: 4px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -50,7 +92,7 @@ def load_data(sheet_id, secret_key):
 # Wir laden Insta-Daten hier schon für den Header
 df = load_data(INSTA_SHEET_ID, "gcp_service_account")
 
-# Daten vorbereiten (exakt wie im Original)
+# Daten vorbereiten
 if not df.empty:
     if 'DATE' in df.columns:
         df['DATE'] = pd.to_datetime(df['DATE']).dt.date
@@ -69,7 +111,11 @@ else:
     akt_datum = "-"
 
 # Header Anzeige
-st.image("logo_instagram_dashboard.png", width=350)
+try:
+    st.image("logo_instagram_dashboard.png", width=350)
+except:
+    st.title("Futsal Dashboard") # Fallback, falls Bild fehlt
+
 st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
 st.markdown(f"[www.misterfutsal.de](https://www.misterfutsal.de) | :grey[Stand {akt_datum}]")
 
@@ -80,7 +126,7 @@ st.divider()
 # ==========================================
 tab_insta, tab_zuschauer = st.tabs(["📸 Instagram Dashboard", "🏟️ Zuschauer Dashboard"])
 
-# --- TAB 1: INSTAGRAM (100% Original-Logik) ---
+# --- TAB 1: INSTAGRAM ---
 with tab_insta:
     if not df.empty:
         # Daten weiterverarbeiten
@@ -93,11 +139,13 @@ with tab_insta:
 
         # --- OBERE REIHE ---
         row1_col1, row1_col2 = st.columns(2, gap="medium")
-        h_tables = 2150  # Original-Höhe
+        h_tables = 2150 
 
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
-            st.markdown("**:yellow[👇 Wähle hier einen oder mehrere Vereine aus!]**")
+            # Design-Update: HTML-Klasse für besseres Styling nutzen
+            st.markdown('<div class="instruction-text">👇 Klicke in die Tabelle, um Vereine auszuwählen!</div>', unsafe_allow_html=True)
+            
             selection = st.dataframe(
                 df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']], 
                 column_config={
@@ -151,7 +199,7 @@ with tab_insta:
             df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
             df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
 
-            # TOP 10 GRAFIK (Originaleinstellungen wiederhergestellt)
+            # TOP 10 GRAFIK
             df_top10 = df_trend.sort_values(by='Zuwachs', ascending=False).head(10).copy()
             df_top10['CLUB_NAME'] = df_top10['CLUB_NAME'].str[:20]
             
@@ -162,7 +210,7 @@ with tab_insta:
             fig_top.update_yaxes(title_text=None)
             st.plotly_chart(fig_top, use_container_width=True, config={'staticPlot': True})
 
-            # BOTTOM 10 GRAFIK (Originaleinstellungen wiederhergestellt)
+            # BOTTOM 10 GRAFIK
             df_bottom10 = df_trend.sort_values(by='Zuwachs', ascending=True).head(10).copy()
             df_bottom10['CLUB_NAME'] = df_bottom10['CLUB_NAME'].str[:20]
             
@@ -198,6 +246,8 @@ with tab_zuschauer:
 
         if 'HEIM' in df_z.columns:
             heim_teams = sorted(df_z['HEIM'].unique())
+            
+            # Hier greift jetzt das neue CSS Styling (Blauer Rahmen, großer Text)
             auswahl_team = st.selectbox("Wähle einen Verein (Heimteam):", heim_teams)
 
             team_data = df_z[df_z['HEIM'] == auswahl_team].sort_values('DATUM')
