@@ -35,7 +35,7 @@ insta_urls = [
     "https://www.instagram.com/fussball.gtsvffm1908/", "https://www.instagram.com/pcfmuelheim/",
     "https://www.instagram.com/holzpfostenschwerte/", "https://www.instagram.com/nk_zagreb_dortmund_futsal/",
     "https://www.instagram.com/alhuda98.futsal/", "https://www.instagram.com/rsc.futsal/",
-    "https://www.instagram.com/ljiljanihamburg/", 
+    "https://www.instagram.com/ljiljanihamburg/", "https://www.instagram.com/gsvduisburg/",
     "https://www.instagram.com/croatia.hamburg.futsal/", "https://www.instagram.com/blackforestfutsal/",
     "https://www.instagram.com/afgbergstrasse/", "https://www.instagram.com/futsalclubfrankfurt/",
     "https://www.instagram.com/futsalclubbiberach/", "https://www.instagram.com/futsalclubusora/",
@@ -126,5 +126,6 @@ except Exception as e:
     print(f"❌ KRITISCHER FEHLER: {e}")
 
 print("FERTIG!")
+
 
 
