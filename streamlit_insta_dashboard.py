@@ -11,54 +11,76 @@ ZUSCHAUER_SHEET_ID = "14puepYtteWGPD1Qv89gCpZijPm5Yrgr8glQnGBh3PXM"
 
 st.set_page_config(page_title="Futsal Insta-Analytics", layout="wide")
 
-# --- STYLING (PROFESSIONAL DESIGN UPDATE) ---
+# --- STYLING (DESIGN UPDATE: HIGH CONTRAST TABS) ---
 st.markdown("""
 <style>
-    /* --- TAB STYLING (Original) --- */
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
-    .stTabs [data-baseweb="tab"] {
-        background-color: #f0f2f6; padding-top: 10px; padding-bottom: 10px;
-    }
-    .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        background-color: #0047AB; color: #FFD700 !important;
-    }
-    .stTabs [data-baseweb="tab"][aria-selected="true"] p {
-        color: #FFD700 !important; font-weight: bold;
-    }
-
-    /* --- NEU: SELECTBOX & INPUT DESIGN (High Visibility) --- */
+    /* --- TAB STYLING (NEU: Button-Style mit hohem Kontrast) --- */
     
-    /* Der Container der Dropdown-Liste */
-    div[data-baseweb="select"] > div {
-        background-color: #FDFDFD; /* Fast Weiß */
-        border: 2px solid #0047AB; /* Fetter blauer Rand */
-        border-radius: 8px; /* Leicht abgerundet */
-        box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Leichter Schatten für Tiefe */
+    /* Container der Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px; /* Abstand zwischen den Tabs */
+        background-color: transparent;
+        padding-bottom: 10px;
     }
 
-    /* Der Text innerhalb der Dropdown-Liste */
+    /* INAKTIVER TAB (Standard) */
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        background-color: #FFFFFF; /* Reinweiß */
+        border: 2px solid #D3D3D3; /* Hellgrauer Rahmen zur Abgrenzung */
+        border-radius: 8px; /* Abgerundete Ecken */
+        padding: 0px 20px;
+        color: #31333F; /* Dunkelgrauer Text für Lesbarkeit */
+        font-weight: 600;
+        transition: all 0.3s ease; /* Weicher Übergang */
+    }
+
+    /* HOVER EFFEKT (Maus drüber) */
+    .stTabs [data-baseweb="tab"]:hover {
+        border-color: #0047AB;
+        background-color: #E8F0FE; /* Ganz helles Blau */
+        color: #0047AB;
+    }
+
+    /* AKTIVER TAB (Ausgewählt) */
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background-color: #0047AB; /* Tiefes Blau */
+        border: 2px solid #0047AB;
+        color: #FFFFFF !important; /* Weißer Text - bester Kontrast */
+        box-shadow: 0px 4px 6px rgba(0, 71, 171, 0.3); /* Schatten für "Pop"-Effekt */
+    }
+    
+    /* Text im aktiven Tab */
+    .stTabs [data-baseweb="tab"][aria-selected="true"] p {
+        color: #FFFFFF !important;
+        font-size: 18px; /* Etwas größer */
+        font-weight: bold;
+    }
+
+    /* --- SELECTBOX DESIGN (Beibehalten) --- */
+    div[data-baseweb="select"] > div {
+        background-color: #FDFDFD;
+        border: 2px solid #0047AB;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+    }
     div[data-baseweb="select"] span {
         font-weight: 600;
         color: #333;
     }
-
-    /* Das Label über der Dropdown-Liste (z.B. "Wähle einen Verein") */
     .stSelectbox label p {
         font-size: 18px !important;
         color: #0047AB !important;
         font-weight: 800 !important;
         margin-bottom: 5px;
     }
-
-    /* Das Icon (Pfeil) in der Selectbox einfärben */
     div[data-baseweb="select"] svg {
         fill: #0047AB !important;
     }
 
-    /* --- NEU: DATAFRAME HINWEIS --- */
-    /* Macht den Text "Wähle hier..." auffälliger */
+    /* --- DATAFRAME HINWEIS (Beibehalten) --- */
     .instruction-text {
-        background-color: #FFF9C4; /* Helles Gelb */
+        background-color: #FFF9C4;
         padding: 10px;
         border-left: 5px solid #FFD700;
         border-radius: 4px;
@@ -114,7 +136,7 @@ else:
 try:
     st.image("logo_instagram_dashboard.png", width=350)
 except:
-    st.title("Futsal Dashboard") # Fallback, falls Bild fehlt
+    st.title("Futsal Dashboard") 
 
 st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
 st.markdown(f"[www.misterfutsal.de](https://www.misterfutsal.de) | :grey[Stand {akt_datum}]")
@@ -143,7 +165,6 @@ with tab_insta:
 
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
-            # Design-Update: HTML-Klasse für besseres Styling nutzen
             st.markdown('<div class="instruction-text">👇 Klicke in die Tabelle, um Vereine auszuwählen!</div>', unsafe_allow_html=True)
             
             selection = st.dataframe(
@@ -247,7 +268,6 @@ with tab_zuschauer:
         if 'HEIM' in df_z.columns:
             heim_teams = sorted(df_z['HEIM'].unique())
             
-            # Hier greift jetzt das neue CSS Styling (Blauer Rahmen, großer Text)
             auswahl_team = st.selectbox("Wähle einen Verein (Heimteam):", heim_teams)
 
             team_data = df_z[df_z['HEIM'] == auswahl_team].sort_values('DATUM')
