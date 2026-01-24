@@ -134,7 +134,7 @@ else:
 
 # Header Anzeige
 try:
-    st.image("banner_statistik_dashboard.png", width=350)
+    st.image("banner_statistik_dashboard.png", width=450)
 except:
     st.title("Futsal Dashboard") 
 
@@ -288,5 +288,6 @@ with tab_zuschauer:
                 st.warning("Keine Daten für dieses Team gefunden.")
         else:
             st.error("Spalte 'HEIM' fehlt im Sheet.")
+
 
 
