@@ -115,7 +115,7 @@ with tab_insta:
         
         row2_col1, row2_col2 = st.columns(2, gap="medium")
         with row2_col1:
-            st.subheader("📈 Wachstumstrends")
+            st.subheader("📈 Wachstumstrends (4 Wochen)")
             latest_date_global = df_insta['DATE'].max()
             target_date_4w = latest_date_global - timedelta(weeks=4)
             available_dates = sorted(df_insta['DATE'].unique())
@@ -124,35 +124,14 @@ with tab_insta:
             df_then = df_insta[df_insta['DATE'] == closest_old_date][['CLUB_NAME', 'FOLLOWER']]
             df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
             df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
-    
-            df_top10 = df_trend.sort_values(by='Zuwachs', ascending=False).head(10).copy()
-            df_top10['CLUB_NAME'] = df_top10['CLUB_NAME'].str[:20]
             
-            fig_top = px.bar(df_top10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                             title="🚀 Top 10 Gewinner (seit dem 15.01.2026)", color_discrete_sequence=['#00CC96'], text='Zuwachs')
-            fig_top.update_traces(textposition='inside', insidetextanchor='start', textangle=0)
-            fig_top.update_layout(yaxis={'categoryorder':'total ascending'})
-            fig_top.update_yaxes(title_text=None)
-            st.plotly_chart(fig_top, use_container_width=True, config={'staticPlot': True})
-    
-            df_bottom10 = df_trend.sort_values(by='Zuwachs', ascending=True).head(10).copy()
-            df_bottom10['CLUB_NAME'] = df_bottom10['CLUB_NAME'].str[:20]
+            st.plotly_chart(px.bar(df_trend.sort_values(by='Zuwachs', ascending=False).head(10), x='Zuwachs', y='CLUB_NAME', orientation='h', title="🚀 Top 10 Gewinner", color_discrete_sequence=['#00CC96'], text='Zuwachs').update_layout(yaxis={'categoryorder':'total ascending'}), use_container_width=True)
+            st.plotly_chart(px.bar(df_trend.sort_values(by='Zuwachs', ascending=True).head(10), x='Zuwachs', y='CLUB_NAME', orientation='h', title="📉 Geringstes Wachstum", color_discrete_sequence=['#FF4B4B'], text='Zuwachs').update_layout(yaxis={'categoryorder':'total descending'}), use_container_width=True)
             
-            fig_bottom = px.bar(df_bottom10, x='Zuwachs', y='CLUB_NAME', orientation='h', 
-                                title="📉 Geringstes Wachstum (seit dem 15.01.2026)", color_discrete_sequence=['#FF4B4B'], text='Zuwachs')
-            fig_bottom.update_traces(textposition='inside', insidetextanchor='start', textangle=0)
-            fig_bottom.update_layout(yaxis={'categoryorder':'total descending'})
-            fig_bottom.update_yaxes(title_text=None)
-            st.plotly_chart(fig_bottom, use_container_width=True, config={'staticPlot': True})
-    
         with row2_col2:
             st.subheader("🌐 Gesamtentwicklung Deutschland")
-            df_total_history = df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index()
-            fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200'])
-            fig_total.update_layout(separators=',.')
-            fig_total.update_yaxes(tickformat=',d')
-            fig_total.update_xaxes(title_text=None, tickformat="%d.%m.%Y")
-            st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': True})
+            st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
+            st.plotly_chart(px.line(df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index(), x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200']).update_yaxes(tickformat=',d'), use_container_width=True)
     else: 
         st.error("Instagram-Daten konnten nicht geladen werden.")
 
@@ -162,16 +141,15 @@ with tab_zuschauer:
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
 
     if not df_z.empty:
+        # Datentypen bereinigen
         if 'DATUM' in df_z.columns: 
             df_z['DATUM'] = pd.to_datetime(df_z['DATUM'], dayfirst=True, errors='coerce')
         if 'ZUSCHAUER' in df_z.columns: 
             df_z['ZUSCHAUER'] = pd.to_numeric(df_z['ZUSCHAUER'], errors='coerce').fillna(0)
-        
-        # ANPASSUNG: Komma-Handling für AVERAGE_SPIELTAG
         if 'AVERAGE_SPIELTAG' in df_z.columns:
-            df_z['AVERAGE_SPIELTAG'] = df_z['AVERAGE_SPIELTAG'].astype(str).str.replace(',', '.', regex=False)
             df_z['AVERAGE_SPIELTAG'] = pd.to_numeric(df_z['AVERAGE_SPIELTAG'], errors='coerce').fillna(0)
         
+        # Saison berechnen falls nötig (für Team-Ansicht)
         def get_season(d):
             if pd.isnull(d): return "Unbekannt"
             return f"{d.year}/{d.year + 1}" if d.month >= 7 else f"{d.year - 1}/{d.year}"
@@ -188,35 +166,49 @@ with tab_zuschauer:
             options_list = ["🇩🇪 Liga-Gesamtentwicklung (Spieltag-Schnitt)"] + sorted(df_z['HEIM'].unique())
             auswahl = st.selectbox("Wähle eine Analyse:", options_list)
 
+            # --- NEUER BEREICH: LIGA-GESAMTENTWICKLUNG ---
             if "Liga-Gesamtentwicklung" in auswahl:
                 st.subheader("📈 Durchschnittliche Zuschauer pro Spieltag")
+                
+                # 1. Hilfs-Dataframe erstellen
+                # Wir nutzen SAISON (oder SEASON), SPIELTAG und AVERAGE_SPIELTAG
                 cols = ['SAISON', 'SPIELTAG', 'AVERAGE_SPIELTAG']
                 df_helper = df_z[[c for c in cols if c in df_z.columns]].copy()
+                
+                # 2. Deduplizieren auf Saison und Spieltag
                 df_helper = df_helper.drop_duplicates(subset=['SAISON', 'SPIELTAG']).sort_values(['SAISON', 'SPIELTAG'])
 
                 if not df_helper.empty:
-                    # ANPASSUNG: Bar-Chart statt Line-Chart
-                    fig_trend = px.bar(
+                    # 3. Grafik erstellen (Liniendiagramm für Trends über Spieltage)
+                    fig_trend = px.line(
                         df_helper, 
                         x='SPIELTAG', 
                         y='AVERAGE_SPIELTAG', 
                         color='SAISON',
-                        barmode='group',
+                        markers=True,
                         title="Zuschauerschnitt im Saisonvergleich (nach Spieltag)",
                         labels={'AVERAGE_SPIELTAG': 'Ø Zuschauer', 'SPIELTAG': 'Spieltag'},
                         color_discrete_map=color_map
                     )
-                    fig_trend.update_layout(hovermode="x unified", xaxis=dict(dtick=1))
+                    
+                    fig_trend.update_layout(
+                        hovermode="x unified",
+                        xaxis=dict(dtick=1)
+                    )
+                    
                     st.plotly_chart(fig_trend, use_container_width=True)
                     
+                    # Rohdaten Expander
                     with st.expander("Datenquelle der Grafik anzeigen"):
                         st.dataframe(df_helper, hide_index=True, use_container_width=True)
                 else:
                     st.warning("Die erforderlichen Spalten (SAISON, SPIELTAG, AVERAGE_SPIELTAG) fehlen im Datensatz.")
 
+            # --- TEAM-ANALYSE ---
             else:
                 team_data = df_z[df_z['HEIM'] == auswahl].sort_values('DATUM')
                 st.subheader(f"Entwicklung: {auswahl}")
+                
                 stats_team = team_data.groupby('SAISON')['ZUSCHAUER'].agg(['count', 'mean']).reset_index()
                 stats_team.columns = ['Saison', 'Anzahl Spiele', 'Ø Zuschauer']
                 stats_team['Ø Zuschauer'] = stats_team['Ø Zuschauer'].round(0).astype(int)
@@ -229,3 +221,5 @@ with tab_zuschauer:
 
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
+
