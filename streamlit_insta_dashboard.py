@@ -116,7 +116,6 @@ with tab_insta:
         row2_col1, row2_col2 = st.columns(2, gap="medium")
         with row2_col1:
             st.subheader("📈 Wachstumstrends")
-            # KORREKTUR: df wurde zu df_insta geändert
             latest_date_global = df_insta['DATE'].max()
             target_date_4w = latest_date_global - timedelta(weeks=4)
             available_dates = sorted(df_insta['DATE'].unique())
@@ -148,7 +147,6 @@ with tab_insta:
     
         with row2_col2:
             st.subheader("🌐 Gesamtentwicklung Deutschland")
-            # KORREKTUR: df wurde zu df_insta geändert
             df_total_history = df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index()
             fig_total = px.line(df_total_history, x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200'])
             fig_total.update_layout(separators=',.')
@@ -168,7 +166,10 @@ with tab_zuschauer:
             df_z['DATUM'] = pd.to_datetime(df_z['DATUM'], dayfirst=True, errors='coerce')
         if 'ZUSCHAUER' in df_z.columns: 
             df_z['ZUSCHAUER'] = pd.to_numeric(df_z['ZUSCHAUER'], errors='coerce').fillna(0)
+        
+        # ANPASSUNG: Komma-Handling für AVERAGE_SPIELTAG
         if 'AVERAGE_SPIELTAG' in df_z.columns:
+            df_z['AVERAGE_SPIELTAG'] = df_z['AVERAGE_SPIELTAG'].astype(str).str.replace(',', '.', regex=False)
             df_z['AVERAGE_SPIELTAG'] = pd.to_numeric(df_z['AVERAGE_SPIELTAG'], errors='coerce').fillna(0)
         
         def get_season(d):
@@ -194,12 +195,13 @@ with tab_zuschauer:
                 df_helper = df_helper.drop_duplicates(subset=['SAISON', 'SPIELTAG']).sort_values(['SAISON', 'SPIELTAG'])
 
                 if not df_helper.empty:
-                    fig_trend = px.line(
+                    # ANPASSUNG: Bar-Chart statt Line-Chart
+                    fig_trend = px.bar(
                         df_helper, 
                         x='SPIELTAG', 
                         y='AVERAGE_SPIELTAG', 
                         color='SAISON',
-                        markers=True,
+                        barmode='group',
                         title="Zuschauerschnitt im Saisonvergleich (nach Spieltag)",
                         labels={'AVERAGE_SPIELTAG': 'Ø Zuschauer', 'SPIELTAG': 'Spieltag'},
                         color_discrete_map=color_map
