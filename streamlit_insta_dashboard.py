@@ -257,7 +257,7 @@ with tab_insta:
 
 # --- TAB 2: ZUSCHAUER ---
 with tab_zuschauer:
-    st.header("🏟️ Zuschauer-Statistiken")
+    st.header("🏟️ Zuschauer-Statistiken der Futsal-Bundesliga (seit 2021/2022)")
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
 
     if not df_z.empty:
@@ -289,6 +289,7 @@ with tab_zuschauer:
                 st.warning("Keine Daten für dieses Team gefunden.")
         else:
             st.error("Spalte 'HEIM' fehlt im Sheet.")
+
 
 
 
