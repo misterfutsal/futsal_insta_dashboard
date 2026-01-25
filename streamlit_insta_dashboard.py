@@ -278,7 +278,7 @@ with tab_zuschauer:
                     tickmode='array',
                     tickvals=team_data['DATUM'], # Positionen (echtes Datum)
                     ticktext=team_data['X_LABEL'], # Unser Text (Datum + Spieltag)
-                    tickangle=-90, # 90 Grad gedreht
+                    tickangle=-45, # 45 Grad gedreht
                     title_text=None
                 )
 
@@ -286,12 +286,7 @@ with tab_zuschauer:
                 st.plotly_chart(
                     fig_z, 
                     use_container_width=True, 
-                    config={
-                        'displayModeBar': False, 
-                        'scrollZoom': False,
-                        'showAxisDragHandles': False,
-                        'editable': False
-                    }
+                    config={'staticPlot': True}  # <--- Macht es zum reinen "Bild"
                 )
             else:
                 st.warning("Keine Daten für dieses Team gefunden.")
@@ -299,3 +294,4 @@ with tab_zuschauer:
             st.error("Spalte 'HEIM' fehlt im Sheet.")
     else:
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
