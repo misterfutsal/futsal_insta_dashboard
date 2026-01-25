@@ -131,6 +131,11 @@ with tab_zuschauer:
                 st.subheader("📈 Entwicklung der Zuschauerzahlen (Saisonschnitt)")
                 
                 # 1. Durchschnitt pro Saison (Jahres-Ebene)
+                stats_year = df_z.groupby('SAISON')['ZUSCHAUER'].agg(['count', 'mean']).reset_index()
+                stats_year.columns = ['Saison', 'Anzahl Spiele', 'Ø Zuschauer']
+                stats_year['Ø Zuschauer'] = stats_year['Ø Zuschauer'].round(0).astype(int)
+                #st.dataframe(stats_year, hide_index=True, use_container_width=True)
+                
                 fig_year = px.bar(stats_year, x='Saison', y='Ø Zuschauer', text='Ø Zuschauer', color='Saison', color_discrete_map=color_map, title="Schnitt pro Saison")
                 fig_year.update_layout(yaxis_range=[0, stats_year['Ø Zuschauer'].max() * 1.2])
                 st.plotly_chart(fig_year, use_container_width=True)
@@ -163,4 +168,3 @@ with tab_zuschauer:
                 fig_team = px.bar(team_data, x='X_LABEL', y='ZUSCHAUER', text='ZUSCHAUER', color='SAISON', color_discrete_map=color_map, title=f"Spiele von {auswahl}")
                 fig_team.update_layout(yaxis_range=[0, team_data['ZUSCHAUER'].max() * 1.2])
                 st.plotly_chart(fig_team, use_container_width=True)
-
