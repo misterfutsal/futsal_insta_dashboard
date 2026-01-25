@@ -232,7 +232,7 @@ with tab_zuschauer:
 
                 team_data['SAISON'] = team_data['DATUM'].apply(get_season)
                 
-                # X-Label erstellen (Datum + Spieltag)
+                # X-Label (Datum + Spieltag) für lückenlose Darstellung
                 if 'SPIELTAG' in team_data.columns:
                     team_data['X_LABEL'] = team_data.apply(
                         lambda x: f"{x['DATUM'].strftime('%d.%m.%Y')} ({str(x['SPIELTAG']).replace('.0', '')})" 
@@ -241,50 +241,46 @@ with tab_zuschauer:
                 else:
                     team_data['X_LABEL'] = team_data['DATUM'].dt.strftime('%d.%m.%Y')
 
-                # Index resetten, damit wir gleich sauber durchiterieren können
-                team_data = team_data.reset_index(drop=True)
+                # --- 2. FARB-LOGIK (ABWECHSELND BLAU / GELB) ---
+                # Wir holen uns alle Saisons in der richtigen Reihenfolge
+                unique_seasons = sorted(team_data['SAISON'].unique())
+                
+                # Wir bauen ein "Wörterbuch" für die Farben
+                color_map = {}
+                for i, season in enumerate(unique_seasons):
+                    # Gerade Zahl (0, 2, 4...) -> BLAU
+                    if i % 2 == 0:
+                        color_map[season] = '#0047AB' 
+                    # Ungerade Zahl (1, 3, 5...) -> GELB (Gold)
+                    else:
+                        color_map[season] = '#FFC000'
 
-                # --- 2. TABELLE ANZEIGEN ---
+                # --- 3. TABELLE ANZEIGEN ---
                 stats = team_data.groupby('SAISON')['ZUSCHAUER'].agg(['count', 'mean']).reset_index()
                 stats.columns = ['Saison', 'Anzahl Spiele', 'Ø Zuschauer']
                 stats['Ø Zuschauer'] = stats['Ø Zuschauer'].round(0).astype(int)
                 
                 st.dataframe(stats, hide_index=True, use_container_width=True)
 
-                # --- 3. DIAGRAMM OHNE LÜCKEN ---
-                # Nutzung von 'X_LABEL' als Kategorie-Achse, nicht als Zeitachse
+                # --- 4. DIAGRAMM ERSTELLEN ---
                 fig_z = px.bar(
                     team_data, 
                     x='X_LABEL', 
                     y='ZUSCHAUER',
                     text='ZUSCHAUER',
-                    color_discrete_sequence=['#0047AB'], # Einheitsfarbe Blau
-                    labels={'ZUSCHAUER': 'Anzahl', 'X_LABEL': 'Datum (Spieltag)'},
+                    color='SAISON',                    # Einfärbung nach Saison
+                    color_discrete_map=color_map,      # Nutzung der Blau/Gelb Logik
+                    labels={'ZUSCHAUER': 'Anzahl', 'X_LABEL': 'Datum (Spieltag)', 'SAISON': 'Saison'},
                     title=f"Heimspiele von {auswahl_team}"
                 )
                 
                 fig_z.update_traces(textposition='outside')
                 
-                # --- 4. SAISON-TRENNLINIEN MANUELL EINFÜGEN ---
-                # Da die X-Achse jetzt Kategorien sind (0, 1, 2...), müssen wir die Linien
-                # anhand des Index setzen. Ein Strich bei x=1.5 liegt genau zwischen Balken 1 und 2.
-                
-                for i in range(1, len(team_data)):
-                    # Wenn sich die Saison im Vergleich zur Zeile davor ändert...
-                    if team_data.loc[i, 'SAISON'] != team_data.loc[i-1, 'SAISON']:
-                        saison_name = team_data.loc[i, 'SAISON']
-                        
-                        fig_z.add_vline(
-                            x=i - 0.5, # Position genau zwischen den Balken
-                            line_width=2, 
-                            line_dash="dash", 
-                            line_color="gray",
-                            annotation_text=saison_name,
-                            annotation_position="top right"
-                        )
-
                 # X-Achse formatieren
                 fig_z.update_xaxes(tickangle=-45, title_text=None)
+                
+                # Legende Titel anpassen
+                fig_z.update_layout(legend_title_text='Saison')
 
                 # Anzeigen
                 st.plotly_chart(
