@@ -231,111 +231,115 @@ with tab_zuschauer:
             else:
                 color_map[season] = '#FFC000' # Gelb
 
-        # ==========================================
-        # TEIL A: GLOBALER DURCHSCHNITT (NEU)
-        # ==========================================
-        st.subheader("📊 Durchschnittliche Zuschauerzahl pro Spieltag (Liga-Gesamt)")
-        
-        if 'SPIELTAG' in df_z.columns:
-            # Kopie für die Aggregation
-            df_global = df_z.copy()
-            df_global['SPIELTAG'] = pd.to_numeric(df_global['SPIELTAG'], errors='coerce')
-            df_global = df_global.dropna(subset=['SPIELTAG'])
-
-            # Gruppieren nach Saison und Spieltag -> Durchschnitt
-            df_global_agg = df_global.groupby(['SAISON', 'SPIELTAG'])['ZUSCHAUER'].mean().reset_index()
-            df_global_agg['ZUSCHAUER'] = df_global_agg['ZUSCHAUER'].round(0).astype(int)
-            
-            # Sortierung sicherstellen (via Datum-Hilfe oder einfach Saison/Spieltag)
-            df_global_agg = df_global_agg.sort_values(by=['SAISON', 'SPIELTAG'])
-
-            # Label für X-Achse
-            df_global_agg['X_LABEL'] = df_global_agg.apply(
-                lambda x: f"{x['SAISON']} - ST {int(x['SPIELTAG'])}", axis=1
-            )
-
-            # Plotten
-            fig_global = px.bar(
-                df_global_agg,
-                x='X_LABEL',
-                y='ZUSCHAUER',
-                text='ZUSCHAUER',
-                color='SAISON',
-                color_discrete_map=color_map,
-                labels={'ZUSCHAUER': 'Ø Zuschauer', 'X_LABEL': 'Spieltag', 'SAISON': 'Saison'},
-                title="Schnitt Zuschauer pro Spieltag (alle Vereine)"
-            )
-            fig_global.update_traces(textposition='outside')
-            fig_global.update_xaxes(tickangle=-45, title_text=None)
-            
-            # Y-Achse fixen (Maximalwert + 20%)
-            y_max_global = df_global_agg['ZUSCHAUER'].max() if not df_global_agg.empty else 100
-            fig_global.update_layout(yaxis_range=[0, y_max_global * 1.2])
-
-            st.plotly_chart(fig_global, use_container_width=True, config={'staticPlot': True})
-            st.divider()
-
-        # ==========================================
-        # TEIL B: VEREINS-SPEZIFISCH (WIE VORHER)
-        # ==========================================
+        # --- AUSWAHL MENÜ AUFBAUEN ---
         if 'HEIM' in df_z.columns:
             heim_teams = sorted(df_z['HEIM'].unique())
-            auswahl_team = st.selectbox("Wähle einen Verein für Detail-Statistiken (Heimteam):", heim_teams)
-
-            # Filterung & Sortierung nach Datum
-            team_data = df_z[df_z['HEIM'] == auswahl_team].sort_values('DATUM')
+            # "Liga-Durchschnitt" als erste Option hinzufügen
+            options_list = ["🇩🇪 Liga-Durchschnitt (Alle Vereine)"] + heim_teams
             
-            if not team_data.empty:
-                st.subheader(f"Zuschauerentwicklung: {auswahl_team}")
+            auswahl = st.selectbox("Wähle eine Analyse:", options_list)
+
+            # --- OPTION 1: LIGA-DURCHSCHNITT (GLOBAL) ---
+            if auswahl == "🇩🇪 Liga-Durchschnitt (Alle Vereine)":
+                st.subheader("📊 Durchschnittliche Zuschauerzahl pro Spieltag (Liga-Gesamt)")
                 
-                # X-Label (Datum + Spieltag) für lückenlose Darstellung
-                if 'SPIELTAG' in team_data.columns:
-                    team_data['X_LABEL'] = team_data.apply(
-                        lambda x: f"{x['DATUM'].strftime('%d.%m.%Y')} ({str(x['SPIELTAG']).replace('.0', '')})" 
-                        if pd.notnull(x['DATUM']) else str(x['SPIELTAG']), axis=1
+                if 'SPIELTAG' in df_z.columns:
+                    # Kopie für die Aggregation
+                    df_global = df_z.copy()
+                    df_global['SPIELTAG'] = pd.to_numeric(df_global['SPIELTAG'], errors='coerce')
+                    df_global = df_global.dropna(subset=['SPIELTAG'])
+
+                    # Gruppieren nach Saison und Spieltag -> Durchschnitt
+                    df_global_agg = df_global.groupby(['SAISON', 'SPIELTAG'])['ZUSCHAUER'].mean().reset_index()
+                    df_global_agg['ZUSCHAUER'] = df_global_agg['ZUSCHAUER'].round(0).astype(int)
+                    
+                    # Sortierung
+                    df_global_agg = df_global_agg.sort_values(by=['SAISON', 'SPIELTAG'])
+
+                    # Label für X-Achse
+                    df_global_agg['X_LABEL'] = df_global_agg.apply(
+                        lambda x: f"{x['SAISON']} - ST {int(x['SPIELTAG'])}", axis=1
+                    )
+
+                    # Tabelle anzeigen (Optional, aber gut für Details)
+                    st.dataframe(df_global_agg[['SAISON', 'SPIELTAG', 'ZUSCHAUER']], hide_index=True, use_container_width=True)
+
+                    # Plotten
+                    fig_global = px.bar(
+                        df_global_agg,
+                        x='X_LABEL',
+                        y='ZUSCHAUER',
+                        text='ZUSCHAUER',
+                        color='SAISON',
+                        color_discrete_map=color_map,
+                        labels={'ZUSCHAUER': 'Ø Zuschauer', 'X_LABEL': 'Spieltag', 'SAISON': 'Saison'},
+                        title="Schnitt Zuschauer pro Spieltag"
+                    )
+                    fig_global.update_traces(textposition='outside')
+                    fig_global.update_xaxes(tickangle=-45, title_text=None)
+                    
+                    # Y-Achse fixen (Maximalwert + 20%)
+                    y_max_global = df_global_agg['ZUSCHAUER'].max() if not df_global_agg.empty else 100
+                    fig_global.update_layout(yaxis_range=[0, y_max_global * 1.2])
+
+                    st.plotly_chart(fig_global, use_container_width=True, config={'staticPlot': True})
+                else:
+                    st.warning("Keine Spieltags-Informationen für die Berechnung verfügbar.")
+
+            # --- OPTION 2: SPEZIFISCHER VEREIN ---
+            else:
+                auswahl_team = auswahl # Der ausgewählte Teamname
+                
+                # Filterung & Sortierung nach Datum
+                team_data = df_z[df_z['HEIM'] == auswahl_team].sort_values('DATUM')
+                
+                if not team_data.empty:
+                    st.subheader(f"Zuschauerentwicklung: {auswahl_team}")
+                    
+                    # X-Label (Datum + Spieltag) für lückenlose Darstellung
+                    if 'SPIELTAG' in team_data.columns:
+                        team_data['X_LABEL'] = team_data.apply(
+                            lambda x: f"{x['DATUM'].strftime('%d.%m.%Y')} ({str(x['SPIELTAG']).replace('.0', '')})" 
+                            if pd.notnull(x['DATUM']) else str(x['SPIELTAG']), axis=1
+                        )
+                    else:
+                        team_data['X_LABEL'] = team_data['DATUM'].dt.strftime('%d.%m.%Y')
+
+                    # --- TABELLE ANZEIGEN ---
+                    stats = team_data.groupby('SAISON')['ZUSCHAUER'].agg(['count', 'mean']).reset_index()
+                    stats.columns = ['Saison', 'Anzahl Spiele', 'Ø Zuschauer']
+                    stats['Ø Zuschauer'] = stats['Ø Zuschauer'].round(0).astype(int)
+                    
+                    st.dataframe(stats, hide_index=True, use_container_width=True)
+
+                    # --- DIAGRAMM ERSTELLEN ---
+                    fig_z = px.bar(
+                        team_data, 
+                        x='X_LABEL', 
+                        y='ZUSCHAUER',
+                        text='ZUSCHAUER',
+                        color='SAISON',                    # Einfärbung nach Saison
+                        color_discrete_map=color_map,      # Nutzung der globalen Blau/Gelb Logik
+                        labels={'ZUSCHAUER': 'Anzahl', 'X_LABEL': 'Datum (Spieltag)', 'SAISON': 'Saison'},
+                        title=f"Heimspiele von {auswahl_team}"
+                    )
+                    
+                    fig_z.update_traces(textposition='outside')
+                    fig_z.update_xaxes(tickangle=-45, title_text=None)
+                    fig_z.update_layout(legend_title_text='Saison')
+
+                    # Y-Achse fixen (Maximalwert + 20%)
+                    y_max_team = team_data['ZUSCHAUER'].max() if not team_data.empty else 100
+                    fig_z.update_layout(yaxis_range=[0, y_max_team * 1.2])
+
+                    # Anzeigen
+                    st.plotly_chart(
+                        fig_z, 
+                        use_container_width=True, 
+                        config={'staticPlot': True} 
                     )
                 else:
-                    team_data['X_LABEL'] = team_data['DATUM'].dt.strftime('%d.%m.%Y')
-
-                # --- TABELLE ANZEIGEN ---
-                stats = team_data.groupby('SAISON')['ZUSCHAUER'].agg(['count', 'mean']).reset_index()
-                stats.columns = ['Saison', 'Anzahl Spiele', 'Ø Zuschauer']
-                stats['Ø Zuschauer'] = stats['Ø Zuschauer'].round(0).astype(int)
-                
-                st.dataframe(stats, hide_index=True, use_container_width=True)
-
-                # --- DIAGRAMM ERSTELLEN ---
-                fig_z = px.bar(
-                    team_data, 
-                    x='X_LABEL', 
-                    y='ZUSCHAUER',
-                    text='ZUSCHAUER',
-                    color='SAISON',                    # Einfärbung nach Saison
-                    color_discrete_map=color_map,      # Nutzung der globalen Blau/Gelb Logik
-                    labels={'ZUSCHAUER': 'Anzahl', 'X_LABEL': 'Datum (Spieltag)', 'SAISON': 'Saison'},
-                    title=f"Heimspiele von {auswahl_team}"
-                )
-                
-                fig_z.update_traces(textposition='outside')
-                
-                # X-Achse formatieren
-                fig_z.update_xaxes(tickangle=-45, title_text=None)
-                
-                # Legende Titel anpassen
-                fig_z.update_layout(legend_title_text='Saison')
-
-                # Y-Achse fixen (Maximalwert + 20%)
-                y_max_team = team_data['ZUSCHAUER'].max() if not team_data.empty else 100
-                fig_z.update_layout(yaxis_range=[0, y_max_team * 1.2])
-
-                # Anzeigen
-                st.plotly_chart(
-                    fig_z, 
-                    use_container_width=True, 
-                    config={'staticPlot': True} 
-                )
-            else:
-                st.warning("Keine Daten für dieses Team gefunden.")
+                    st.warning("Keine Daten für dieses Team gefunden.")
         else:
             st.error("Spalte 'HEIM' fehlt im Sheet.")
     else:
