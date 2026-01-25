@@ -258,17 +258,32 @@ with tab_zuschauer:
                 else:
                     team_data['X_LABEL'] = team_data['DATUM'].dt.strftime('%d.%m.%Y')
 
-                # --- BALKENDIAGRAMM ---
-                # Wir nutzen 'DATUM' für x, damit Plotly die Zeitachse versteht (Abstände),
-                # überschreiben aber die Beschriftung.
+# --- BALKENDIAGRAMM (ohne Zeitlücken) ---
+                # Wir nehmen 'X_LABEL' für die x-Achse. 
+                # Da die Daten sortiert sind, stimmt die Reihenfolge, aber die Lücken sind weg.
                 fig_z = px.bar(
                     team_data, 
-                    x='DATUM', 
+                    x='X_LABEL',    # <--- ÄNDERUNG: Label statt Datum
                     y='ZUSCHAUER',
                     text='ZUSCHAUER',
-                    color_discrete_sequence=['#0047AB'], # Einheitsfarbe Blau
-                    labels={'ZUSCHAUER': 'Anzahl', 'DATUM': 'Datum'},
+                    color_discrete_sequence=['#0047AB'],
+                    labels={'ZUSCHAUER': 'Anzahl', 'X_LABEL': 'Datum (Spieltag)'}, # <--- Label angepasst
                     title=f"Heimspiele von {auswahl_team}"
+                )
+                
+                fig_z.update_traces(textposition='outside')
+
+                # Die Saison-Linien (add_vline) müssen wir hier weglassen, 
+                # da sie auf diesem Diagramm-Typ nicht mehr richtig funktionieren.
+
+                # --- X-ACHSE FORMATIEREN ---
+                # Nur noch das Drehen der Schrift ist nötig
+                fig_z.update_xaxes(tickangle=-45, title_text=None)
+
+                st.plotly_chart(
+                    fig_z, 
+                    use_container_width=True, 
+                    config={'staticPlot': True}
                 )
                 
                 # Werte auf den Balken anzeigen
@@ -316,5 +331,6 @@ with tab_zuschauer:
             st.error("Spalte 'HEIM' fehlt im Sheet.")
     else:
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
