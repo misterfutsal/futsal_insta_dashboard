@@ -89,12 +89,16 @@ with tab_insta:
             selection = st.dataframe(
                 df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']], 
                 column_config={
-                    "RANG": st.column_config.TextColumn("Rang"), 
-                    "URL": st.column_config.LinkColumn("Instagram", display_text=r"https://www.instagram.com/([^/?#]+)"), 
-                    "FOLLOWER": st.column_config.TextColumn("Follower"), 
+                    "RANG": st.column_config.TextColumn("Rang"),
+                    "URL": st.column_config.LinkColumn("Instagram", display_text=r"https://www.instagram.com/([^/?#]+)"),
+                    "FOLLOWER": st.column_config.TextColumn("Follower"),
                     "STAND": st.column_config.TextColumn("Stand")
-                }, 
-                hide_index=True, on_select="rerun", selection_mode="multi-row", use_container_width=True, height=600
+                },
+                hide_index=True,
+                on_select="rerun",
+                selection_mode="multi-row",
+                use_container_width=True,
+                height=h_tables
             )
             
         with row1_col2:
@@ -217,4 +221,5 @@ with tab_zuschauer:
 
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
