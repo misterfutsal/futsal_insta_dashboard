@@ -131,11 +131,15 @@ with tab_insta:
             # Top 10 Gewinner als statisches Bild
             fig_win = px.bar(df_trend.sort_values(by='Zuwachs', ascending=False).head(10), x='Zuwachs', y='CLUB_NAME_SHORT', orientation='h', title="🚀 Top 10 Gewinner", color_discrete_sequence=['#00CC96'], text='Zuwachs')
             fig_win.update_layout(yaxis={'categoryorder':'total ascending'}, yaxis_title=None)
+            # Beschriftung nach links innen setzen
+            fig_win.update_traces(textposition='inside', insidetextanchor='start')
             st.plotly_chart(fig_win, use_container_width=True, config={'staticPlot': True})
 
             # Geringstes Wachstum als statisches Bild
             fig_loss = px.bar(df_trend.sort_values(by='Zuwachs', ascending=True).head(10), x='Zuwachs', y='CLUB_NAME_SHORT', orientation='h', title="📉 Geringstes Wachstum", color_discrete_sequence=['#FF4B4B'], text='Zuwachs')
             fig_loss.update_layout(yaxis={'categoryorder':'total descending'}, yaxis_title=None)
+            # Beschriftung nach links innen setzen
+            fig_loss.update_traces(textposition='inside', insidetextanchor='start')
             st.plotly_chart(fig_loss, use_container_width=True, config={'staticPlot': True})
             
         with row2_col2:
