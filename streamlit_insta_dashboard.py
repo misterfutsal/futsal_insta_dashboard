@@ -138,17 +138,38 @@ with tab_zuschauer:
                 st.plotly_chart(fig_year, use_container_width=True, config={'staticPlot': True})
 
                 if 'SPIELTAG' in df_z.columns:
-                    st.divider()
-                    st.subheader("🏟️ Details pro Spielphase (Alle Spieltage & Playoffs)")
-                    df_all_phases = df_z.copy()
-                    df_all_phases['SPIELTAG_STR'] = df_all_phases['SPIELTAG'].astype(str).str.replace(".0", "", regex=False)
-                    df_phase_agg = df_all_phases.groupby(['SAISON', 'SPIELTAG_STR', 'DATUM'])['ZUSCHAUER'].mean().reset_index().sort_values('DATUM')
-                    df_phase_agg['X_LABEL'] = df_phase_agg['SAISON'] + " - " + df_phase_agg['SPIELTAG_STR']
-                    
-                    fig_phases = px.bar(df_phase_agg, x='X_LABEL', y='ZUSCHAUER', text='ZUSCHAUER', color='SAISON', color_discrete_map=color_map, title="Schnitt je Spielphase (chronologisch)")
-                    fig_phases.update_traces(textposition='outside')
-                    fig_phases.update_layout(yaxis_range=[0, df_phase_agg['ZUSCHAUER'].max() * 1.2])
-                    st.plotly_chart(fig_phases, use_container_width=True, config={'staticPlot': True})
+                                    st.divider()
+                                    st.subheader("🏟️ Details pro Spielphase (Alle Spieltage & Playoffs)")
+                                    df_all_phases = df_z.copy()
+                                    df_all_phases['SPIELTAG_STR'] = df_all_phases['SPIELTAG'].astype(str).str.replace(".0", "", regex=False)
+                                    # Gruppierung und Sortierung
+                                    df_phase_agg = df_all_phases.groupby(['SAISON', 'SPIELTAG_STR', 'DATUM'])['ZUSCHAUER'].mean().reset_index().sort_values('DATUM')
+                                    df_phase_agg['X_LABEL'] = df_phase_agg['SAISON'] + " - " + df_phase_agg['SPIELTAG_STR']
+                                    
+                                    fig_phases = px.bar(
+                                        df_phase_agg, 
+                                        x='X_LABEL', 
+                                        y='ZUSCHAUER', 
+                                        text='ZUSCHAUER', 
+                                        color='SAISON', 
+                                        color_discrete_map=color_map, 
+                                        title="Schnitt je Spielphase (chronologisch)"
+                                    )
+                                    
+                                    # 1. Text immer über den Balken anzeigen
+                                    fig_phases.update_traces(textposition='outside')
+                                    
+                                    # 2. X-Achse um 45 Grad drehen & 3. Y-Achse Ticks auf 150er Schritte setzen
+                                    fig_phases.update_layout(
+                                        xaxis=dict(tickangle=-45),
+                                        yaxis=dict(
+                                            dtick=150, 
+                                            range=[0, df_phase_agg['ZUSCHAUER'].max() * 1.2]
+                                        ),
+                                        margin=dict(b=100) # Platz für die gedrehte Schrift unten
+                                    )
+                                    
+                                    st.plotly_chart(fig_phases, use_container_width=True, config={'staticPlot': True})
 
             else:
                 team_data = df_z[df_z['HEIM'] == auswahl].sort_values('DATUM')
@@ -163,3 +184,4 @@ with tab_zuschauer:
                 fig_team = px.bar(team_data, x='X_LABEL', y='ZUSCHAUER', text='ZUSCHAUER', color='SAISON', color_discrete_map=color_map, title=f"Spiele von {auswahl}")
                 fig_team.update_layout(yaxis_range=[0, team_data['ZUSCHAUER'].max() * 1.2])
                 st.plotly_chart(fig_team, use_container_width=True, config={'staticPlot': True})
+
