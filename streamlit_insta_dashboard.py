@@ -155,7 +155,8 @@ with tab_insta:
 with tab_zuschauer:
     st.header("🏟️ Zuschauer-Statistiken")
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
-    df_z = df_z[df_z.ZUSCHAUER > 0]
+    df_z['ZUSCHAUER'] = pd.to_numeric(df_z['ZUSCHAUER'], errors='coerce')
+    df_z = df_z[df_z['ZUSCHAUER'] > 0]
 
     if not df_z.empty:
         if 'DATUM' in df_z.columns: 
@@ -240,6 +241,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
