@@ -11,7 +11,7 @@ ZUSCHAUER_SHEET_ID = "14puepYtteWGPD1Qv89gCpZijPm5Yrgr8glQnGBh3PXM"
 
 st.set_page_config(page_title="Futsal Insta-Analytics", layout="wide")
 
-# --- STYLING (Unverändert) ---
+# --- STYLING ---
 st.markdown("""
 <style>
     .stTabs [data-baseweb="tab-list"] { gap: 10px; background-color: transparent; padding-bottom: 10px; }
@@ -41,7 +41,7 @@ def load_data(sheet_id, secret_key):
         return pd.DataFrame()
 
 # ==========================================
-# 1. KOPFBEREICH (Unverändert)
+# 1. KOPFBEREICH
 # ==========================================
 df = load_data(INSTA_SHEET_ID, "gcp_service_account")
 if not df.empty:
@@ -64,7 +64,7 @@ st.divider()
 # ==========================================
 tab_insta, tab_zuschauer = st.tabs(["📸 Instagram Dashboard", "🏟️ Zuschauer Dashboard"])
 
-# --- TAB 1: INSTAGRAM (100% wie vorher) ---
+# --- TAB 1: INSTAGRAM ---
 with tab_insta:
     if not df.empty:
         df_latest.insert(0, 'RANG', range(1, len(df_latest) + 1))
@@ -105,7 +105,7 @@ with tab_insta:
             st.plotly_chart(px.line(df.groupby('DATE')['FOLLOWER'].sum().reset_index(), x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200']).update_yaxes(tickformat=',d'), use_container_width=True, config={'staticPlot': True})
     else: st.error("Instagram-Daten konnten nicht geladen werden.")
 
-# --- TAB 2: ZUSCHAUER (ANGESPASST) ---
+# --- TAB 2: ZUSCHAUER ---
 with tab_zuschauer:
     st.header("🏟️ Zuschauer-Statistiken")
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
@@ -126,21 +126,17 @@ with tab_zuschauer:
             options_list = ["🇩🇪 Liga-Gesamtentwicklung (Jahres-Schnitt)"] + sorted(df_z['HEIM'].unique())
             auswahl = st.selectbox("Wähle eine Analyse:", options_list)
 
-            # --- OPTION: LIGA-GESAMT ---
             if "Liga-Gesamtentwicklung" in auswahl:
                 st.subheader("📈 Entwicklung der Zuschauerzahlen (Saisonschnitt)")
-                
-                # 1. Durchschnitt pro Saison (Jahres-Ebene)
                 stats_year = df_z.groupby('SAISON')['ZUSCHAUER'].agg(['count', 'mean']).reset_index()
                 stats_year.columns = ['Saison', 'Anzahl Spiele', 'Ø Zuschauer']
                 stats_year['Ø Zuschauer'] = stats_year['Ø Zuschauer'].round(0).astype(int)
-                #st.dataframe(stats_year, hide_index=True, use_container_width=True)
+                st.dataframe(stats_year, hide_index=True, use_container_width=True)
                 
                 fig_year = px.bar(stats_year, x='Saison', y='Ø Zuschauer', text='Ø Zuschauer', color='Saison', color_discrete_map=color_map, title="Schnitt pro Saison")
                 fig_year.update_layout(yaxis_range=[0, stats_year['Ø Zuschauer'].max() * 1.2])
-                st.plotly_chart(fig_year, use_container_width=True)
+                st.plotly_chart(fig_year, use_container_width=True, config={'staticPlot': True})
 
-                # 2. Alle Phasen (Spieltage inkl. Playoffs)
                 if 'SPIELTAG' in df_z.columns:
                     st.divider()
                     st.subheader("🏟️ Details pro Spielphase (Alle Spieltage & Playoffs)")
@@ -152,9 +148,8 @@ with tab_zuschauer:
                     fig_phases = px.bar(df_phase_agg, x='X_LABEL', y='ZUSCHAUER', text='ZUSCHAUER', color='SAISON', color_discrete_map=color_map, title="Schnitt je Spielphase (chronologisch)")
                     fig_phases.update_traces(textposition='outside')
                     fig_phases.update_layout(yaxis_range=[0, df_phase_agg['ZUSCHAUER'].max() * 1.2])
-                    st.plotly_chart(fig_phases, use_container_width=True)
+                    st.plotly_chart(fig_phases, use_container_width=True, config={'staticPlot': True})
 
-            # --- OPTION: EINZELNER VEREIN ---
             else:
                 team_data = df_z[df_z['HEIM'] == auswahl].sort_values('DATUM')
                 st.subheader(f"Entwicklung: {auswahl}")
@@ -167,4 +162,4 @@ with tab_zuschauer:
                 team_data['X_LABEL'] = team_data.apply(lambda x: f"{x['DATUM'].strftime('%d.%m.%Y')} ({str(x['SPIELTAG']).replace('.0', '')})", axis=1)
                 fig_team = px.bar(team_data, x='X_LABEL', y='ZUSCHAUER', text='ZUSCHAUER', color='SAISON', color_discrete_map=color_map, title=f"Spiele von {auswahl}")
                 fig_team.update_layout(yaxis_range=[0, team_data['ZUSCHAUER'].max() * 1.2])
-                st.plotly_chart(fig_team, use_container_width=True)
+                st.plotly_chart(fig_team, use_container_width=True, config={'staticPlot': True})
