@@ -149,7 +149,7 @@ with tab_zuschauer:
         if 'AVERAGE_SPIELTAG' in df_z.columns:
             df_z['AVERAGE_SPIELTAG'] = pd.to_numeric(df_z['AVERAGE_SPIELTAG'], errors='coerce').fillna(0)
         
-        # Saison berechnen falls nötig
+        # Saison berechnen falls nötig (für Team-Ansicht)
         def get_season(d):
             if pd.isnull(d): return "Unbekannt"
             return f"{d.year}/{d.year + 1}" if d.month >= 7 else f"{d.year - 1}/{d.year}"
@@ -166,50 +166,46 @@ with tab_zuschauer:
             options_list = ["🇩🇪 Liga-Gesamtentwicklung (Chronologisch)"] + sorted(df_z['HEIM'].unique())
             auswahl = st.selectbox("Wähle eine Analyse:", options_list)
 
-            # --- ÜBERARBEITET: LIGA-GESAMTENTWICKLUNG ALS BALKENDIAGRAMM ---
+            # --- NEUER BEREICH: LIGA-GESAMTENTWICKLUNG ALS BALKENDIAGRAMM ---
             if "Liga-Gesamtentwicklung" in auswahl:
-                st.subheader("📈 Durchschnittliche Zuschauer pro Spieltag")
+                st.subheader("📈 Durchschnittliche Zuschauer pro Spieltag (Chronologisch)")
                 
-                # Hilfs-Dataframe für chronologische Anzeige
+                # 1. Hilfs-Dataframe erstellen inkl. Datum für Sortierung
                 cols = ['DATUM', 'SAISON', 'SPIELTAG', 'AVERAGE_SPIELTAG']
                 df_helper = df_z[[c for c in cols if c in df_z.columns]].copy()
                 
-                # Deduplizieren und nach Datum absteigend sortieren (neueste links)
+                # 2. Deduplizieren und chronologisch sortieren (Neu nach Alt für Darstellung von rechts nach links)
                 df_helper = df_helper.drop_duplicates(subset=['SAISON', 'SPIELTAG']).sort_values('DATUM', ascending=False)
-
-                # Label für die X-Achse erstellen, das Saison und Spieltag kombiniert
-                df_helper['LABEL'] = df_helper.apply(
-                    lambda x: f"{x['SAISON']} - {str(x['SPIELTAG']).replace('.0', '')}", axis=1
-                )
+                
+                # 3. Label erstellen für eindeutige X-Achse (Saison + Spieltag/Phase)
+                df_helper['X_LABEL'] = df_helper.apply(lambda x: f"{x['SAISON']} - {str(x['SPIELTAG'])}", axis=1)
 
                 if not df_helper.empty:
-                    # Balkendiagramm erstellen
+                    # 4. Balkendiagramm erstellen
                     fig_trend = px.bar(
                         df_helper, 
-                        x='LABEL', 
+                        x='X_LABEL', 
                         y='AVERAGE_SPIELTAG', 
                         color='SAISON',
-                        title="Zuschauerschnitt im Saisonvergleich (Chronologisch)",
-                        labels={'AVERAGE_SPIELTAG': 'Ø Zuschauer', 'LABEL': 'Saison & Spieltag/Phase'},
-                        color_discrete_map=color_map,
-                        text='AVERAGE_SPIELTAG'
+                        text='AVERAGE_SPIELTAG',
+                        title="Zuschauerschnitt pro Spieltag (inkl. Playoffs & Relegation)",
+                        labels={'AVERAGE_SPIELTAG': 'Ø Zuschauer', 'X_LABEL': 'Zeitraum / Spieltag'},
+                        color_discrete_map=color_map
                     )
                     
                     fig_trend.update_layout(
-                        xaxis_tickangle=-45,
-                        xaxis={'type': 'category'}, # Verhindert, dass Plotly das Datum als Zeitachse interpretiert
-                        hovermode="x",
-                        uniformtext_mode='hide'
+                        xaxis={'type': 'category'}, # Erhält die Sortierung des Dataframes
+                        hovermode="x unified"
                     )
-                    
                     fig_trend.update_traces(textposition='outside')
                     
                     st.plotly_chart(fig_trend, use_container_width=True)
                     
+                    # Rohdaten Expander
                     with st.expander("Datenquelle der Grafik anzeigen"):
-                        st.dataframe(df_helper[['DATUM', 'SAISON', 'SPIELTAG', 'AVERAGE_SPIELTAG']], hide_index=True, use_container_width=True)
+                        st.dataframe(df_helper, hide_index=True, use_container_width=True)
                 else:
-                    st.warning("Die erforderlichen Spalten fehlen im Datensatz.")
+                    st.warning("Die erforderlichen Spalten für die Analyse fehlen.")
 
             # --- TEAM-ANALYSE ---
             else:
