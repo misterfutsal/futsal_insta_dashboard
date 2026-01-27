@@ -186,12 +186,43 @@ with tab_zuschauer:
                 st.subheader("📈 Durchschnittliche Zuschauer pro Spieltag")
                 cols = ["DATUM", 'SAISON', 'SPIELTAG', 'AVERAGE_SPIELTAG']
                 df_helper = df_z[[c for c in cols if c in df_z.columns]].copy()
-                df_helper = df_helper.drop_duplicates(subset=['SAISON', 'SPIELTAG']).sort_values(['SAISON', 'SPIELTAG'])
-
+                
+                # 7. Deduplizieren und 3. Chronologisch sortieren (wichtig für die richtige Reihenfolge!)
+                df_helper = df_helper.drop_duplicates(subset=['SAISON', 'SPIELTAG']).sort_values('DATUM')
+                
                 if not df_helper.empty:
-                    fig_trend = px.line(df_helper, x='SPIELTAG', y='AVERAGE_SPIELTAG', color='SAISON', markers=True, title="Zuschauerschnitt im Saisonvergleich (nach Spieltag)", labels={'AVERAGE_SPIELTAG': 'Ø Zuschauer', 'SPIELTAG': 'Spieltag'}, color_discrete_map=color_map)
-                    fig_trend.update_layout(hovermode="x unified", xaxis=dict(dtick=1))
+                    # 1. Balkendiagramm statt Linie
+                    # 6. Werte (text) über den Balken
+                    # 8. Nur Gelb und Blau als Farben
+                    fig_trend = px.bar(
+                        df_helper, 
+                        x='DATUM', # Wir nutzen Datum für die X-Achse, damit die Reihenfolge stimmt
+                        y='AVERAGE_SPIELTAG', 
+                        color='SAISON', 
+                        text='AVERAGE_SPIELTAG', 
+                        title="Zuschauerschnitt im Saisonvergleich (nach Spieltag)",
+                        color_discrete_sequence=['#FFD700', '#0057B8'] # Gelb und Blau
+                    )
+                
+                    fig_trend.update_layout(
+                        # 2. Keine Achsentitel
+                        xaxis_title=None,
+                        yaxis_title=None,
+                        # 5. Achse als "Kategorie" -> macht alle Abstände gleich groß
+                        xaxis=dict(
+                            type='category', 
+                            tickmode='array',
+                            tickvals=df_helper['DATUM'],   # Die echten Positionen (Datum)
+                            ticktext=df_helper['SPIELTAG'] # 4. Was angezeigt wird (Spieltag)
+                        ),
+                        hovermode="x unified"
+                    )
+                    
+                    # 6. Beschriftung nach außen setzen
+                    fig_trend.update_traces(textposition='outside')
+                
                     st.plotly_chart(fig_trend, use_container_width=True)
+                    
                     with st.expander("Datenquelle der Grafik anzeigen"):
                         st.dataframe(df_helper, hide_index=True, use_container_width=True)
                 else:
@@ -248,6 +279,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
