@@ -214,6 +214,7 @@ with tab_zuschauer:
                             tickmode='array',
                             tickvals=df_helper['DATUM'],   # Die echten Positionen (Datum)
                             ticktext=df_helper['SPIELTAG'] # 4. Was angezeigt wird (Spieltag)
+                            tickangle=-45  # Dreht die Beschriftung um 45 Grad
                         ),
                         hovermode="x unified"
                     )
@@ -277,6 +278,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
