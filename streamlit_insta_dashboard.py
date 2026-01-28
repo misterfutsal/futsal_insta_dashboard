@@ -153,7 +153,7 @@ with tab_insta:
 
 # --- TAB 2: ZUSCHAUER ---
 with tab_zuschauer:
-    st.header("🏟️ Zuschauer-Statistiken")
+    st.header("#🏟️ Zuschauer-Statistiken")
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
     df_z['ZUSCHAUER'] = pd.to_numeric(df_z['ZUSCHAUER'], errors='coerce')
     df_z = df_z[df_z['ZUSCHAUER'] > 0]
@@ -180,7 +180,7 @@ with tab_zuschauer:
 
         if 'HEIM' in df_z.columns:
             options_list = ["🇩🇪 Liga-Gesamtentwicklung (Spieltag-Schnitt)"] + sorted(df_z['HEIM'].unique())
-            auswahl = st.selectbox("Wähle eine Analyse:", options_list)
+            auswahl = st.selectbox("## Wähle einen Verein aus:", options_list)
 
             if "Liga-Gesamtentwicklung" in auswahl:
                 #Hier die Saisons mit Durchschnitten
@@ -327,6 +327,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
