@@ -121,6 +121,7 @@ with tab_insta:
         
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
+            st.markdown("👇 :yellow[Hier Vereine für Detailanalyse selektieren]")
             selection = st.dataframe(
                 df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']], 
                 column_config={
@@ -330,3 +331,4 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
