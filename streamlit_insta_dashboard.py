@@ -153,7 +153,7 @@ with tab_insta:
 
 # --- TAB 2: ZUSCHAUER ---
 with tab_zuschauer:
-    st.header("#🏟️ Zuschauer-Statistiken")
+    st.header("## 🏟️ Zuschauer-Statistiken")
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
     df_z['ZUSCHAUER'] = pd.to_numeric(df_z['ZUSCHAUER'], errors='coerce')
     df_z = df_z[df_z['ZUSCHAUER'] > 0]
@@ -227,7 +227,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_saison, use_container_width=True)
 
                 # Hier alle Spieltage mit Durchschnitt
-                st.subheader("📈 Durchschnittliche Zuschauer pro Spieltag")
+                st.subheader("## 📈 Durchschnittliche Zuschauer pro Spieltag")
                 cols = ["DATUM", 'SAISON', 'SPIELTAG', 'AVERAGE_SPIELTAG']
                 df_helper = df_z[[c for c in cols if c in df_z.columns]].copy()
                 
@@ -327,6 +327,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
