@@ -183,7 +183,6 @@ with tab_zuschauer:
 
             if "Liga-Gesamtentwicklung" in auswahl:
                 #Hier die Saisons mit Durchschnitten
-                st.markdown("#### 🏆 Durchschnittliche Zuschauer pro Saison")
 
                 # Wir nehmen die ganze Tabelle (df_z) VOR dem Aussortieren
                 # und rechnen den Durchschnitt (mean) für jede Saison aus.
@@ -199,7 +198,7 @@ with tab_zuschauer:
                         x='SAISON', 
                         y='ZUSCHAUER',
                         text='ZUSCHAUER',
-                        title="Saisonschnitt (Alle Spiele)",
+                        title="Saisonschnitt Bundesliga gesamt",
                     )
                 
                     # Farben setzen und Text nach oben schieben
@@ -226,7 +225,6 @@ with tab_zuschauer:
                     st.plotly_chart(fig_saison, use_container_width=True)
 
                 # Hier alle Spieltage mit Durchschnitt
-                st.subheader("## 📈 Durchschnittliche Zuschauer pro Spieltag")
                 cols = ["DATUM", 'SAISON', 'SPIELTAG', 'AVERAGE_SPIELTAG']
                 df_helper = df_z[[c for c in cols if c in df_z.columns]].copy()
                 
@@ -326,6 +324,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
