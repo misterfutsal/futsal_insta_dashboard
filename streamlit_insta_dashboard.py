@@ -145,7 +145,7 @@ with tab_insta:
                 df_trend.sort_values(by='Zuwachs', ascending=False).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
-                title="🚀 Top 10 Gewinner (Klickbar)", 
+                title="🚀 Top 10 Gewinner seit dem 15.01.2026 (Klickbar)", 
                 color_discrete_sequence=['#00CC96'], 
                 text='Zuwachs',
                 custom_data=['CLUB_NAME'] 
@@ -164,7 +164,7 @@ with tab_insta:
                 df_trend.sort_values(by='Zuwachs', ascending=True).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
-                title="📉 Geringstes Wachstum (Klickbar)", 
+                title="📉 Geringstes Wachstum seit dem 15.01.2026 (Klickbar)", 
                 color_discrete_sequence=['#FF4B4B'], 
                 text='Zuwachs',
                 custom_data=['CLUB_NAME'] 
@@ -404,3 +404,4 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
