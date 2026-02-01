@@ -271,9 +271,58 @@ with tab_insta:
                      sel_clubs.append(st.session_state.selected_club_from_chart)
 
             if sel_clubs:
+                # plot_data = df_insta[df_insta['CLUB_NAME'].isin(sel_clubs)].sort_values(['CLUB_NAME', 'DATE'])
+                # fig_detail = px.line(plot_data, x='DATE', y='FOLLOWER', color='CLUB_NAME', title="Vergleich der Vereine", markers=True)
+                # st.plotly_chart(fig_detail, use_container_width=True)
+                # Daten vorbereiten
                 plot_data = df_insta[df_insta['CLUB_NAME'].isin(sel_clubs)].sort_values(['CLUB_NAME', 'DATE'])
+                
+                # Plot erstellen
                 fig_detail = px.line(plot_data, x='DATE', y='FOLLOWER', color='CLUB_NAME', title="Vergleich der Vereine", markers=True)
-                st.plotly_chart(fig_detail, use_container_width=True)
+                
+                # 🛠️ Y-Achsen Puffer berechnen (damit der höchste Wert nicht oben "klebt")
+                if not plot_data.empty:
+                    y_max = plot_data['FOLLOWER'].max()
+                    y_min = plot_data['FOLLOWER'].min()
+                    # Puffer berechnen (z.B. 10% der Spannweite oben draufrechnen)
+                    diff = y_max - y_min
+                    if diff == 0: diff = y_max * 0.1 # Fallback, falls alle Werte gleich sind
+                    
+                    # Bereich manuell setzen: Unten etwas Luft, Oben 10% Luft für den nächsten Tick
+                    y_range = [y_min - (diff * 0.05), y_max + (diff * 0.15)]
+                    fig_detail.update_yaxes(range=y_range)
+                
+                # Layout Updates
+                fig_detail.update_layout(
+                    xaxis_title=None,       # 🚫 X-Titel ausblenden
+                    xaxis=dict(
+                        tickformat="%d.%m.%Y", # 📅 Format dd.mm.yyyy
+                        fixedrange=True        # 🔒 X-Zoom sperren
+                    ),
+                    yaxis=dict(
+                        fixedrange=True        # 🔒 Y-Zoom sperren
+                    ),
+                    dragmode=False,            # 🔒 Ziehen verhindern
+                    legend_title_text=None     # Optional: Legenden-Titel entfernen (sieht oft sauberer aus)
+                )
+                
+                # Marker dürfen über die Achsen hinausgehen (verhindert halbe Kreise am Rand)
+                fig_detail.update_traces(cliponaxis=False)
+                
+                # Anzeigen mit Konfiguration
+                st.plotly_chart(
+                    fig_detail, 
+                    use_container_width=True,
+                    config={
+                        'displayModeBar': True, # ✅ Toolbar bleibt an (für Download)
+                        'scrollZoom': False,    # 🚫 Mausrad deaktivieren
+                        'displaylogo': False,   # 🚫 Plotly Logo weg
+                        # Wir entfernen gezielt nur die Zoom/Pan-Buttons, lassen "Download" aber da:
+                        'modeBarButtonsToRemove': [
+                            'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'
+                        ]
+                    }
+                )
             else: 
                 st.info("💡 Klicke links in der Tabelle auf Zeilen oder oben auf das Diagramm, um den Verlauf zu sehen.")
         
@@ -433,6 +482,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
