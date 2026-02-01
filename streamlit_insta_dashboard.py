@@ -184,7 +184,20 @@ with tab_insta:
                 text='Zuwachs',
                 custom_data=['CLUB_NAME'] 
             )
-            fig_loss.update_layout(yaxis={'categoryorder':'total descending'}, yaxis_title=None, clickmode='event+select')
+            
+            # Layout aktualisieren: Zoom sperren, Interaktion beschränken
+            fig_loss.update_layout(
+                yaxis={
+                    'categoryorder': 'total descending',
+                    'fixedrange': True  # 🔒 Verhindert Zoom auf Y-Achse
+                },
+                xaxis={
+                    'fixedrange': True  # 🔒 Verhindert Zoom auf X-Achse
+                },
+                yaxis_title=None,
+                clickmode='event+select',
+                dragmode=False          # 🔒 Verhindert das Ziehen/Maus-Selektieren
+            )
             fig_loss.update_traces(textposition='inside', insidetextanchor='start', textfont_color='black', textangle=-0)
             
             # Event Listener
@@ -419,6 +432,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
