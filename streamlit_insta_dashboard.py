@@ -185,7 +185,7 @@ with tab_insta:
         st.markdown("<div id='ranking_anchor'></div>", unsafe_allow_html=True)
         
         row1_col1, row1_col2 = st.columns(2, gap="medium")
-        h_tables = 2150
+        #h_tables = 2150
         
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
@@ -211,7 +211,7 @@ with tab_insta:
             
             # Styling anwenden
             styled_df = df_view.style.apply(highlight_selected_row, axis=1)
-
+                
             selection = st.dataframe(
                 styled_df, 
                 column_config={
@@ -224,7 +224,7 @@ with tab_insta:
                 on_select="rerun",
                 selection_mode="multi-row",
                 use_container_width=True,
-                height=h_tables
+                height=(len(df_view) + 1) * 35 + 3
             )
             
         with row1_col2:
@@ -404,4 +404,5 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
