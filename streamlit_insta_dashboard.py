@@ -332,21 +332,28 @@ with tab_insta:
         st.subheader("🌐 Gesamtentwicklung Deutschland")
         st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
         
-        # 1. Daten vorbereiten
+        # 1. Daten berechnen (unten 5% weniger, oben 5% mehr Platz)
         df_grouped = df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index()
-        min_val = df_grouped['FOLLOWER'].min()
-        max_val = df_grouped['FOLLOWER'].max()
+        y_min = df_grouped['FOLLOWER'].min() * 0.95
+        y_max = df_grouped['FOLLOWER'].max() * 1.05
         
-        # 2. Grafik bauen
+        # 2. Grafik erstellen
         fig_total = px.line(df_grouped, x='DATE', y='FOLLOWER', 
                             title="Summe aller Follower", markers=True, 
                             color_discrete_sequence=['#FFB200'])
         
-        # 3. Y-Achse einstellen (unten 5% weniger, oben 5% mehr Platz)
-        fig_total.update_yaxes(range=[min_val * 0.99, max_val * 1.01], tickformat=',d')
+        # 3. Y-Achse fest einstellen
+        fig_total.update_yaxes(range=[y_min, y_max], tickformat=',d')
         
-        # 4. Anzeigen (staticPlot: False macht den Download und Mouseover an!)
-        st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': False})
+        # 4. In Streamlit anzeigen (Zoomen verboten!)
+        st.plotly_chart(fig_total, use_container_width=True, config={
+            'displayModeBar': True,        # Zeigt die Werkzeugleiste oben
+            'scrollZoom': False,           # Mausrad-Zoom aus
+            'staticPlot': False,           # Erlaubt Mouseover und Download
+            'modeBarButtonsToRemove': [    # Entfernt alle Zoom-Knöpfe
+                'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'
+            ]
+        })
 
     else: 
         st.error("Instagram-Daten konnten nicht geladen werden.")
@@ -496,6 +503,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
