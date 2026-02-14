@@ -332,21 +332,20 @@ with tab_insta:
         st.subheader("🌐 Gesamtentwicklung Deutschland")
         st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
         
-        # 1. Grafik erstellen
-        fig_total = px.line(
-            df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index(), 
-            x='DATE', 
-            y='FOLLOWER', 
-            title="Summe aller Follower", 
-            markers=True, 
-            color_discrete_sequence=['#FFB200']
-        )
+        # 1. Daten vorbereiten
+        df_grouped = df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index()
+        min_val = df_grouped['FOLLOWER'].min()
+        max_val = df_grouped['FOLLOWER'].max()
         
-        # 2. Y-Achse so einstellen, dass sie oben etwas Platz lässt (10% Puffer)
-        max_follower = df_insta.groupby('DATE')['FOLLOWER'].sum().max()
-        fig_total.update_yaxes(range=[0, max_follower * 1.1], tickformat=',d')
+        # 2. Grafik bauen
+        fig_total = px.line(df_grouped, x='DATE', y='FOLLOWER', 
+                            title="Summe aller Follower", markers=True, 
+                            color_discrete_sequence=['#FFB200'])
         
-        # 3. Anzeige in Streamlit (staticPlot muss False sein für Interaktivität)
+        # 3. Y-Achse einstellen (unten 5% weniger, oben 5% mehr Platz)
+        fig_total.update_yaxes(range=[min_val * 0.95, max_val * 1.05], tickformat=',d')
+        
+        # 4. Anzeigen (staticPlot: False macht den Download und Mouseover an!)
         st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': False})
 
     else: 
@@ -497,6 +496,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
