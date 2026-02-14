@@ -331,8 +331,23 @@ with tab_insta:
         # --- TEIL 3: GESAMTENTWICKLUNG ---
         st.subheader("🌐 Gesamtentwicklung Deutschland")
         st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
-        fig_total = px.line(df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index(), x='DATE', y='FOLLOWER', title="Summe aller Follower", markers=True, color_discrete_sequence=['#FFB200']).update_yaxes(tickformat=',d')
-        st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': True})
+        
+        # 1. Grafik erstellen
+        fig_total = px.line(
+            df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index(), 
+            x='DATE', 
+            y='FOLLOWER', 
+            title="Summe aller Follower", 
+            markers=True, 
+            color_discrete_sequence=['#FFB200']
+        )
+        
+        # 2. Y-Achse so einstellen, dass sie oben etwas Platz lässt (10% Puffer)
+        max_follower = df_insta.groupby('DATE')['FOLLOWER'].sum().max()
+        fig_total.update_yaxes(range=[0, max_follower * 1.1], tickformat=',d')
+        
+        # 3. Anzeige in Streamlit (staticPlot muss False sein für Interaktivität)
+        st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': False})
 
     else: 
         st.error("Instagram-Daten konnten nicht geladen werden.")
@@ -482,6 +497,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
