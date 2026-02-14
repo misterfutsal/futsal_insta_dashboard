@@ -334,8 +334,8 @@ with tab_insta:
         
         # 1. Daten berechnen (unten 5% weniger, oben 5% mehr Platz)
         df_grouped = df_insta.groupby('DATE')['FOLLOWER'].sum().reset_index()
-        y_min = df_grouped['FOLLOWER'].min() * 0.95
-        y_max = df_grouped['FOLLOWER'].max() * 1.05
+        y_min = df_grouped['FOLLOWER'].min() * 0.995
+        y_max = df_grouped['FOLLOWER'].max() * 1.005
         
         # 2. Grafik erstellen
         fig_total = px.line(df_grouped, x='DATE', y='FOLLOWER', 
@@ -503,6 +503,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
