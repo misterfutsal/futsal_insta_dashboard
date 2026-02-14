@@ -343,7 +343,7 @@ with tab_insta:
                             color_discrete_sequence=['#FFB200'])
         
         # 3. Y-Achse einstellen (unten 5% weniger, oben 5% mehr Platz)
-        fig_total.update_yaxes(range=[min_val * 0.95, max_val * 1.05], tickformat=',d')
+        fig_total.update_yaxes(range=[min_val * 0.99, max_val * 1.01], tickformat=',d')
         
         # 4. Anzeigen (staticPlot: False macht den Download und Mouseover an!)
         st.plotly_chart(fig_total, use_container_width=True, config={'staticPlot': False})
@@ -496,6 +496,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
