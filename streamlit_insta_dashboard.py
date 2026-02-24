@@ -153,25 +153,20 @@ with tab_insta:
                 df_trend.sort_values(by='Zuwachs', ascending=False).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
-                title="🚀 Top 10 Gewinner seit dem 15.01.2026 (Klickbar)", 
+                title=f"🚀 Top 10 Gewinner ({zeit_auswahl})",  # Überschrift ändert sich von Zauberhand! ✨
                 color_discrete_sequence=['#00CC96'], 
                 text='Zuwachs',
                 custom_data=['CLUB_NAME'] 
             )
             
-            # Layout aktualisieren: Zoom sperren, aber Klickbarkeit erhalten
+            # Layout aktualisieren
             fig_win.update_layout(
-                yaxis={
-                    'categoryorder': 'total ascending',
-                    'fixedrange': True  # 🔒 Verhindert Zoom auf Y-Achse
-                },
-                xaxis={
-                    'fixedrange': True  # 🔒 Verhindert Zoom auf X-Achse
-                },
+                yaxis={'categoryorder': 'total ascending', 'fixedrange': True},
+                xaxis={'fixedrange': True},
                 yaxis_title=None,
                 clickmode='event+select',
-                dragmode=False,         # 🔒 Verhindert das Ziehen/Maus-Selektieren
-                margin=dict(l=0, r=0, t=40, b=0) # Optional: Ränder optimieren
+                dragmode=False,
+                margin=dict(l=0, r=0, t=40, b=0)
             )
             
             fig_win.update_traces(textposition='inside', insidetextanchor='start', textfont_color='black', textangle=0)
@@ -180,31 +175,26 @@ with tab_insta:
             event_win = st.plotly_chart(fig_win, use_container_width=True, on_select="rerun", selection_mode="points", key="chart_win")
             if handle_chart_selection(event_win):
                 scroll_to_anchor()
-
+        
         with top_row_col2:
             # Geringstes Wachstum
             fig_loss = px.bar(
                 df_trend.sort_values(by='Zuwachs', ascending=True).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
-                title="📉 Geringstes Wachstum seit dem 15.01.2026 (Klickbar)", 
+                title=f"📉 Geringstes Wachstum ({zeit_auswahl})", # Überschrift ändert sich von Zauberhand! ✨
                 color_discrete_sequence=['#FF4B4B'], 
                 text='Zuwachs',
                 custom_data=['CLUB_NAME'] 
             )
             
-            # Layout aktualisieren: Zoom sperren, Interaktion beschränken
+            # Layout aktualisieren
             fig_loss.update_layout(
-                yaxis={
-                    'categoryorder': 'total descending',
-                    'fixedrange': True  # 🔒 Verhindert Zoom auf Y-Achse
-                },
-                xaxis={
-                    'fixedrange': True  # 🔒 Verhindert Zoom auf X-Achse
-                },
+                yaxis={'categoryorder': 'total descending', 'fixedrange': True},
+                xaxis={'fixedrange': True},
                 yaxis_title=None,
                 clickmode='event+select',
-                dragmode=False,          # 🔒 Verhindert das Ziehen/Maus-Selektieren
+                dragmode=False,
                 margin=dict(l=0, r=0, t=40, b=0)
             )
             fig_loss.update_traces(textposition='inside', insidetextanchor='start', textfont_color='black', textangle=-0)
@@ -213,7 +203,7 @@ with tab_insta:
             event_loss = st.plotly_chart(fig_loss, use_container_width=True, on_select="rerun", selection_mode="points", key="chart_loss")
             if handle_chart_selection(event_loss):
                 scroll_to_anchor()
-
+        
         st.divider()
 
         # --- TEIL 2: TABELLEN & DETAILANALYSE ---
@@ -511,6 +501,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
