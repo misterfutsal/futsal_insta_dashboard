@@ -330,7 +330,8 @@ with tab_insta:
                         tickformat="%d.%m.%Y", # 📅 Format dd.mm.yyyy
                         fixedrange=True,        # 🔒 X-Zoom sperren
                         nticks=20,           # Erzwingt ca. 20 Markierungen
-                        tickmode="auto"
+                        tickmode="auto",
+                        tickangle=-45
                     ),
                     yaxis=dict(
                         fixedrange=True        # 🔒 Y-Zoom sperren
@@ -536,6 +537,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
