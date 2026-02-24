@@ -89,11 +89,6 @@ st.divider()
 # 2. REITER / TABS
 # ==========================================
 tab_insta, tab_zuschauer = st.tabs(["📸 Instagram Follower", "🏟️ Bundesliga Zuschauer"])
-zeit_auswahl = st.selectbox(
-    "Wähle deine Zeitreise:",
-    ["Letzte 30 Tage", "Letzte 60 Tage", "Letzte 90 Tage", "Letztes Jahr", "Seit Datenaufzeichnung"],
-    index=0 # 30 Tage ist der Startwert!
-)
 # --- TAB 1: INSTAGRAM ---
 with tab_insta:
     if not df_insta.empty:
@@ -207,7 +202,11 @@ with tab_insta:
         st.divider()
 
         # --- TEIL 2: TABELLEN & DETAILANALYSE ---
-        
+        zeit_auswahl = st.selectbox(
+            "Wähle deine Zeitreise:",
+            ["Letzte 30 Tage", "Letzte 60 Tage", "Letzte 90 Tage", "Letztes Jahr", "Seit Datenaufzeichnung"],
+            index=0 # 30 Tage ist der Startwert!
+        )
         # 1. ANCHOR SETZEN
         st.markdown("<div id='ranking_anchor'></div>", unsafe_allow_html=True)
         
@@ -501,6 +500,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
