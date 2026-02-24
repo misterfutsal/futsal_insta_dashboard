@@ -332,7 +332,7 @@ with tab_insta:
                         nticks=20,           # Erzwingt ca. 20 Markierungen
                         tickmode="auto",
                         tickangle=-45,
-                        showgrid=True,       # ✅ Zeige das Gitter an
+                        showgrid=False,       # ✅ Zeige das Gitter an
                         gridcolor='lightgray'   # 🩶 Farbe der Linien (Grau)
                     ),
                     yaxis=dict(
@@ -539,6 +539,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
