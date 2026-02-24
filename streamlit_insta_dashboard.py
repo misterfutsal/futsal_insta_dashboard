@@ -100,16 +100,7 @@ with tab_insta:
         
         # --- TEIL 1: WACHSTUMSTRENDS ---
         latest_date_global = df_insta['DATE'].max()
-        target_date_4w = latest_date_global - timedelta(weeks=4)
         available_dates = sorted(df_insta['DATE'].unique())
-        closest_old_date = min(available_dates, key=lambda x: x if x <= target_date_4w else available_dates[0])
-        
-        df_then = df_insta[df_insta['DATE'] == closest_old_date][['CLUB_NAME', 'FOLLOWER']]
-        df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
-        df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
-        
-        # Namen kürzen
-        df_trend['CLUB_NAME_SHORT'] = df_trend['CLUB_NAME'].apply(lambda x: x[:20] + '...' if len(x) > 20 else x)
 
         # STATE INITIALISIERUNG FÜR KLICK-EVENT
         if 'selected_club_from_chart' not in st.session_state:
@@ -121,6 +112,38 @@ with tab_insta:
             ["Letzte 30 Tage", "Letzte 60 Tage", "Letzte 90 Tage", "Letztes Jahr", "Seit Datenaufzeichnung"],
             index=0
         )
+
+        # 📊 Berechne das Zeitfenster basierend auf die Auswahl
+        def calculate_time_window(selection):
+            if selection == "Letzte 30 Tage":
+                return timedelta(days=30)
+            elif selection == "Letzte 60 Tage":
+                return timedelta(days=60)
+            elif selection == "Letzte 90 Tage":
+                return timedelta(days=90)
+            elif selection == "Letztes Jahr":
+                return timedelta(days=365)
+            else:  # "Seit Datenaufzeichnung"
+                return None
+
+        time_delta = calculate_time_window(zeit_auswahl)
+        
+        # Berechne das Zieldatum basierend auf das Zeitfenster
+        if time_delta:
+            target_date = latest_date_global - time_delta
+        else:
+            target_date = available_dates[0]  # Ältestes verfügbares Datum
+
+        # Finde das nächstgelegene Datum in den Daten
+        closest_old_date = min(available_dates, key=lambda x: abs((x - target_date).days))
+        
+        # Erstelle df_then basierend auf das gefilterte Datum
+        df_then = df_insta[df_insta['DATE'] == closest_old_date][['CLUB_NAME', 'FOLLOWER']]
+        df_trend = pd.merge(df_latest[['CLUB_NAME', 'FOLLOWER']], df_then, on='CLUB_NAME', suffixes=('_neu', '_alt'))
+        df_trend['Zuwachs'] = df_trend['FOLLOWER_neu'] - df_trend['FOLLOWER_alt']
+        
+        # Namen kürzen
+        df_trend['CLUB_NAME_SHORT'] = df_trend['CLUB_NAME'].apply(lambda x: x[:20] + '...' if len(x) > 20 else x)
         
         top_row_col1, top_row_col2 = st.columns(2, gap="medium")
         
