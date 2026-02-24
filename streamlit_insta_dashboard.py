@@ -115,13 +115,6 @@ with tab_insta:
         if 'selected_club_from_chart' not in st.session_state:
             st.session_state.selected_club_from_chart = None
 
-        # 🌟 Hier kommt dein Menü hin (ganz gerade eingerückt!):
-        zeit_auswahl = st.selectbox(
-            "Wähle Zeitfenster für Top 10 (seit 15.01.2026):",
-            ["Letzte 14 Tage", "Letzte 28 Tage", "Letzte 40 Tage"],
-            index=0
-        )
-        
         top_row_col1, top_row_col2 = st.columns(2, gap="medium")
         
         # --- FUNKTION: ROBUSTE AUSWERTUNG DES KLICKS ---
@@ -148,6 +141,12 @@ with tab_insta:
                         st.session_state.selected_club_from_chart = selected_name
                         return True
             return False
+
+        zeit_auswahl = st.selectbox(
+            "Wähle deine Zeitreise:",
+            ["Letzte 14 Tage", "Letzte 30 Tage", "Letzte 90 Tage", "Letztes Jahr", "Seit Datenaufzeichnung"],
+            index=0 # 30 Tage ist der Startwert!
+        )
         
         with top_row_col1:
             # Top 10 Gewinner
@@ -209,6 +208,11 @@ with tab_insta:
         st.divider()
 
         # --- TEIL 2: TABELLEN & DETAILANALYSE ---
+        zeit_auswahl = st.selectbox(
+            "Wähle deine Zeitreise:",
+            ["Letzte 30 Tage", "Letzte 60 Tage", "Letzte 90 Tage", "Letztes Jahr", "Seit Datenaufzeichnung"],
+            index=0 # 30 Tage ist der Startwert!
+        )
         # 1. ANCHOR SETZEN
         st.markdown("<div id='ranking_anchor'></div>", unsafe_allow_html=True)
         
@@ -502,9 +506,6 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
-
-
-
 
 
 
