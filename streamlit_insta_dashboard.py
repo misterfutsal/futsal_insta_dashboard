@@ -110,7 +110,7 @@ with tab_insta:
         zeit_auswahl = st.selectbox(
             "Wähle deine Zeitreise:",
             [
-                "Letzte 14 Tage"
+                "Letzte 14 Tage",
                 "Letzte 30 Tage",
                 "Letzte 60 Tage",
                 "Letzte 90 Tage",
@@ -534,6 +534,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
