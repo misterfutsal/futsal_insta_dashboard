@@ -142,11 +142,11 @@ with tab_insta:
                         st.session_state.selected_club_from_chart = selected_name
                         return True
             return False
-         zeit_auswahl = st.selectbox(
+        zeit_auswahl = st.selectbox(
             "Wähle deine Zeitreise:",
             ["Letzte 30 Tage", "Letzte 60 Tage", "Letzte 90 Tage", "Letztes Jahr", "Seit Datenaufzeichnung"],
             index=0 # 30 Tage ist der Startwert!
-            )
+        )
         with top_row_col1:
             # Top 10 Gewinner
             fig_win = px.bar(
@@ -501,6 +501,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
