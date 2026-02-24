@@ -108,7 +108,7 @@ with tab_insta:
 
         # 🌟 Hier kommt dein Menü hin (ganz gerade eingerückt!):
         zeit_auswahl = st.selectbox(
-            "Wähle deine Zeitreise:",
+            "Wähle deine Zeitreise (Start Datenaufzeichnung 15.01.2025):",
             [
                 "Letzte 14 Tage",
                 "Letzte 30 Tage",
@@ -534,6 +534,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
