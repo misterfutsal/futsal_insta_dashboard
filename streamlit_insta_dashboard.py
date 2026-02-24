@@ -331,7 +331,9 @@ with tab_insta:
                         fixedrange=True,        # 🔒 X-Zoom sperren
                         nticks=20,           # Erzwingt ca. 20 Markierungen
                         tickmode="auto",
-                        tickangle=-45
+                        tickangle=-45,
+                        showgrid=True,       # ✅ Zeige das Gitter an
+                        gridcolor='gray'   # 🩶 Farbe der Linien (Grau)
                     ),
                     yaxis=dict(
                         fixedrange=True        # 🔒 Y-Zoom sperren
@@ -537,6 +539,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
