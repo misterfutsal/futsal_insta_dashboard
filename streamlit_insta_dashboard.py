@@ -108,14 +108,14 @@ with tab_insta:
 
         # 🌟 Hier kommt dein Menü hin (ganz gerade eingerückt!):
         zeit_auswahl = st.selectbox(
-            "Wähle deine Zeitreise:",
+            "Wähle deine Zeitreise (Start Datenaufzeichnung 15.01.2025):",
             [
                 "Letzte 14 Tage",
                 "Letzte 30 Tage",
-                #"Letzte 60 Tage",
-                #"Letzte 90 Tage",
-                #"Letztes Jahr",
-                "Seit Datenaufzeichnung (15.01.2026)"
+                "Letzte 60 Tage",
+                "Letzte 90 Tage",
+                "Letztes Jahr",
+                "Seit Datenaufzeichnung"
             ],
             index=0
         )
@@ -401,10 +401,15 @@ with tab_zuschauer:
     df_z = df_z[df_z['ZUSCHAUER'] > 0]
 
     if not df_z.empty:
+        # Datum konvertieren
         if 'DATUM' in df_z.columns: 
             df_z['DATUM'] = pd.to_datetime(df_z['DATUM'], dayfirst=True, errors='coerce')
+        # Zuschauer als Zahl garantie
         if 'ZUSCHAUER' in df_z.columns: 
             df_z['ZUSCHAUER'] = pd.to_numeric(df_z['ZUSCHAUER'], errors='coerce').fillna(0)
+        # Spieltag falls vorhanden numerisch machen (wichtig für den Vergleich)
+        if 'SPIELTAG' in df_z.columns:
+            df_z['SPIELTAG'] = pd.to_numeric(df_z['SPIELTAG'], errors='coerce').fillna(0).astype(int)
         if 'AVERAGE_SPIELTAG' in df_z.columns:
             df_z['AVERAGE_SPIELTAG'] = pd.to_numeric(df_z['AVERAGE_SPIELTAG'], errors='coerce').fillna(0)
         
@@ -456,6 +461,38 @@ with tab_zuschauer:
                         hovermode="x unified"
                     )
                     st.plotly_chart(fig_saison, use_container_width=True)
+
+                    # --- NEU: Vergleich aller Saisons bis zum gleichen Spieltag (Like-for-Like) ---
+                    # Bestimme aktuellste Saison und deren höchsten Spieltag
+                    if 'SAISON' in df_z.columns and 'SPIELTAG' in df_z.columns:
+                        latest_season = df_z.loc[df_z['DATUM'].idxmax(), 'SAISON']
+                        max_st_current = df_z[df_z['SAISON'] == latest_season]['SPIELTAG'].max()
+                        # Guard gegen NaN
+                        if pd.notna(max_st_current) and max_st_current > 0:
+                            df_lfl = df_z[df_z['SPIELTAG'] <= max_st_current]
+                            df_saison_lfl = df_lfl.groupby('SAISON')['ZUSCHAUER'].mean().reset_index()
+                            if not df_saison_lfl.empty:
+                                df_saison_lfl['COLOR'] = [farben_liste[i % 2] for i in range(len(df_saison_lfl))]
+                                fig_saison_lfl = px.bar(
+                                    df_saison_lfl,
+                                    x='SAISON',
+                                    y='ZUSCHAUER',
+                                    text='ZUSCHAUER',
+                                    title=f"Saisonschnitt bis Spieltag {int(max_st_current)} (Like-for-Like)",
+                                )
+                                fig_saison_lfl.update_traces(
+                                    marker_color=df_saison_lfl['COLOR'],
+                                    textposition='outside',
+                                    texttemplate='%{text:.0f}'
+                                )
+                                fig_saison_lfl.update_layout(
+                                    xaxis_title=None,
+                                    yaxis_title=None,
+                                    xaxis=dict(tickfont=dict(size=10), type='category'),
+                                    yaxis=dict(range=[0,350]),
+                                    hovermode="x unified"
+                                )
+                                st.plotly_chart(fig_saison_lfl, use_container_width=True)
 
                 cols = ["DATUM", 'SAISON', 'SPIELTAG', 'AVERAGE_SPIELTAG']
                 df_helper = df_z[[c for c in cols if c in df_z.columns]].copy()
