@@ -424,7 +424,9 @@ with tab_zuschauer:
 
         unique_seasons = sorted([s for s in df_z['SAISON'].unique() if s != "Unbekannt"])
         color_map = {s: ('#0047AB' if i % 2 == 0 else '#FFC000') for i, s in enumerate(unique_seasons)}
-
+        
+        st.markdown(f"[Hinweis: Spieltag 19 = Relegation; 20 = Viertelfinale; 21 = Halbfinale ; 22 = Finale | :grey[Stand {akt_datum}]")
+        
         if 'HEIM' in df_z.columns:
             options_list = ["🇩🇪 Liga-Gesamtentwicklung (Spieltag-Schnitt)"] + sorted(df_z['HEIM'].unique())
             auswahl = st.selectbox("## Wähle einen Verein aus:", options_list, key="vereins_auswahl")
@@ -576,6 +578,7 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
 
 
 
