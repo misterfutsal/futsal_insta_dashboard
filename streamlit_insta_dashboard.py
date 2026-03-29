@@ -213,7 +213,7 @@ with tab_insta:
         with top_row_col2:
             # Geringstes Wachstum
             fig_loss = px.bar(
-                df_trend.sort_values(by='Zuwachs', ascending=True).head(10), 
+                df_trend[df_trend['CLUB_NAME'] != 'DJK Würmtal Planegg'].sort_values(by='Zuwachs', ascending=True).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
                 title=f"📉 Geringstes Wachstum ({zeit_auswahl})", # Überschrift ändert sich von Zauberhand! ✨
