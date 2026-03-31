@@ -211,9 +211,16 @@ with tab_insta:
                 scroll_to_anchor()
         
         with top_row_col2:
-            # Geringstes Wachstum
+            # Liste Ausschluss von Top Down
+            liste_ausschluss = [
+                'DJK Würmtal Planegg',
+                "MSV Bonner Lions"
+            ]
+            
+            # Geringstes Wachstum 
             fig_loss = px.bar(
-                df_trend[df_trend['CLUB_NAME'] != 'DJK Würmtal Planegg'].sort_values(by='Zuwachs', ascending=True).head(10), 
+                df_trend[df_trend['CLUB_NAME'].notin(liste_ausschluss)].sort_values(by='Zuwachs', ascending=True).head(10), 
+                #df_trend[df_trend['CLUB_NAME'] != 'DJK Würmtal Planegg'].sort_values(by='Zuwachs', ascending=True).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
                 title=f"📉 Geringstes Wachstum ({zeit_auswahl})", # Überschrift ändert sich von Zauberhand! ✨
