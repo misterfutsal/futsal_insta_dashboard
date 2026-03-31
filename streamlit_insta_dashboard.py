@@ -219,7 +219,7 @@ with tab_insta:
             
             # Geringstes Wachstum 
             fig_loss = px.bar(
-                df_trend[df_trend['CLUB_NAME'].notin(liste_ausschluss)].sort_values(by='Zuwachs', ascending=True).head(10), 
+                df_trend[~df_trend['CLUB_NAME'].isin(liste_ausschluss)].sort_values(by='Zuwachs', ascending=True).head(10), 
                 #df_trend[df_trend['CLUB_NAME'] != 'DJK Würmtal Planegg'].sort_values(by='Zuwachs', ascending=True).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
