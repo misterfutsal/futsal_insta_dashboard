@@ -94,6 +94,15 @@ with tab_insta:
     if not df_insta.empty:
         df_latest.insert(0, 'RANG', range(1, len(df_latest) + 1))
         df_latest_display = df_latest.copy()
+
+        # Entferne inaktive CLubs und speichere diese separat
+        liste_ausschluss_inaktiv = [
+            "MSV Bonner Lions"
+        ]
+        df_excluded = df_latest_display[~df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
+        df_latest_display = df_latest_display[~df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)]
+
+        # Sortiere Mainfraime
         df_latest_display['RANG'] = df_latest_display['RANG'].astype(str)
         df_latest_display['FOLLOWER'] = df_latest_display['FOLLOWER'].apply(lambda x: f"{int(x):,}".replace(",", "."))
         df_latest_display['STAND'] = df_latest_display['DATE'].apply(lambda x: x.strftime('%d.%m.%Y'))
@@ -274,11 +283,7 @@ with tab_insta:
                 return [color] * len(row)
 
             # Daten vorbereiten (nur Spalten, die wir anzeigen wollen)
-            liste_ausschluss_inaktiv = [
-                "MSV Bonner Lions"
-            ]
             df_view = df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']]
-            df_view = df_view[~df_view['CLUB_NAME'].isin(liste_ausschluss_inaktiv)]
             
             # Styling anwenden
             styled_df = df_view.style.apply(highlight_selected_row, axis=1)
@@ -405,7 +410,7 @@ with tab_insta:
         # --- NEU: Ausgeschlossene Vereine anzeigen ---
         st.divider()
         st.subheader("🚫 Inaktive oder aussortierte Instagram Profile")
-        df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
+       # df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
 
         if not df_excluded.empty:
             df_excluded_display = df_excluded[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']]
