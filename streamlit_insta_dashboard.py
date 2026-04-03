@@ -429,7 +429,7 @@ with tab_insta:
         else:
             st.info("Keine ausgeschlossenen Vereine in der aktuellen Datenbasis gefunden.")
 
-    else: 
+    else:
         st.error("Instagram-Daten konnten nicht geladen werden.")
 
 # --- TAB 2: ZUSCHAUER ---
