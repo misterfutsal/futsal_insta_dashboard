@@ -89,9 +89,14 @@ st.divider()
 # 2. REITER / TABS
 # ==========================================
 tab_insta, tab_zuschauer = st.tabs(["📸 Instagram Follower", "🏟️ Bundesliga Zuschauer"])
-# --- TAB 1: INSTAGRAM ---
 with tab_insta:
     if not df_insta.empty:
+
+        
+        # ==========================================
+        # --- TAB 1: INSTAGRAM ---
+        # ==========================================
+        
         #df_latest.insert(0, 'RANG', range(1, len(df_latest) + 1))
         df_latest_display = df_latest.copy()
 
@@ -263,7 +268,11 @@ with tab_insta:
         
         st.divider()
 
-        # --- TEIL 2: TABELLEN & DETAILANALYSE ---
+        
+        # =======================================================
+        #             TEIL 2: TABELLEN & DETAILANALYSE 
+        # =======================================================
+        
         # 1. ANCHOR SETZEN
         st.markdown("<div id='ranking_anchor'></div>", unsafe_allow_html=True)
         
@@ -386,8 +395,12 @@ with tab_insta:
                 st.info("💡 Klicke links in der Tabelle auf Zeilen oder oben auf das Diagramm, um den Verlauf zu sehen.")
         
         st.divider()
+
         
-        # --- TEIL 3: GESAMTENTWICKLUNG ---
+        # =======================================================
+        #                TEIL 3: GESAMTENTWICKLUNG
+        # =======================================================
+        
         st.subheader("🌐 Gesamtentwicklung Deutschland")
         st.markdown(f"##### Deutschland gesamt: :yellow[**{summe_follower}**]")
         
@@ -414,7 +427,11 @@ with tab_insta:
             ]
         })
 
-        # --- Teil 4: Ausgeschlossene Vereine anzeigen ---
+
+        # =======================================================
+        #        Teil 4: Ausgeschlossene Vereine anzeigen
+        # =======================================================
+        
         st.divider()
         st.subheader("🚫 Inaktive oder aussortierte Instagram Profile")
        # df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
