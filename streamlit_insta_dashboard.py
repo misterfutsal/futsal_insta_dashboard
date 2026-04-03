@@ -431,7 +431,7 @@ with tab_insta:
 
     else:
         st.error("Instagram-Daten konnten nicht geladen werden.")
-
+        
 # --- TAB 2: ZUSCHAUER ---
 with tab_zuschauer:
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
@@ -576,43 +576,43 @@ with tab_zuschauer:
                     st.warning("Die erforderlichen Spalten (SAISON, SPIELTAG, AVERAGE_SPIELTAG) fehlen im Datensatz.")
 
             else:
-                    team_data = df_z[df_z['HEIM'] == auswahl].sort_values('DATUM')
-                    st.markdown(f"### Entwicklung: {auswahl}")
+                team_data = df_z[df_z['HEIM'] == auswahl].sort_values('DATUM')
+                st.markdown(f"### Entwicklung: {auswahl}")
                     
-                    stats_saison = team_data.groupby('SAISON')['ZUSCHAUER'].mean().reset_index()
-                    stats_saison.columns = ['Saison', 'Ø Zuschauer']
-                    stats_saison['Ø Zuschauer'] = stats_saison['Ø Zuschauer'].round(0).astype(int)
+                stats_saison = team_data.groupby('SAISON')['ZUSCHAUER'].mean().reset_index()
+                stats_saison.columns = ['Saison', 'Ø Zuschauer']
+                stats_saison['Ø Zuschauer'] = stats_saison['Ø Zuschauer'].round(0).astype(int)
                     
-                    fig_avg = px.bar(stats_saison, x='Saison', y='Ø Zuschauer', text='Ø Zuschauer', 
-                                     title=f"Durchschnittliche Zuschauer pro Saison",
-                                     color='Saison', color_discrete_map=color_map)
-                    fig_avg.update_traces(textposition='outside')
-                    fig_avg.update_layout(
-                        xaxis=dict(fixedrange=True),
-                        yaxis=dict(
-                            fixedrange=True, 
-                            range=[0, stats_saison['Ø Zuschauer'].max() * 1.25],
-                            nticks=10, 
-                            exponentformat="none"
-                        ),
-                        margin=dict(b=100)
-                    )
-                    st.plotly_chart(fig_avg, use_container_width=True)
+                fig_avg = px.bar(stats_saison, x='Saison', y='Ø Zuschauer', text='Ø Zuschauer', 
+                                    title=f"Durchschnittliche Zuschauer pro Saison",
+                                    color='Saison', color_discrete_map=color_map)
+                fig_avg.update_traces(textposition='outside')
+                fig_avg.update_layout(
+                    xaxis=dict(fixedrange=True),
+                    yaxis=dict(
+                        fixedrange=True, 
+                        range=[0, stats_saison['Ø Zuschauer'].max() * 1.25],
+                        nticks=10, 
+                        exponentformat="none"
+                    ),
+                    margin=dict(b=100)
+                )
+                st.plotly_chart(fig_avg, use_container_width=True)
                     
-                    team_data['X_LABEL'] = team_data.apply(lambda x: f"{x['DATUM'].strftime('%d.%m.%Y')} (ST {str(x['SPIELTAG']).replace('.0', '')})", axis=1)
+                team_data['X_LABEL'] = team_data.apply(lambda x: f"{x['DATUM'].strftime('%d.%m.%Y')} (ST {str(x['SPIELTAG']).replace('.0', '')})", axis=1)
                     
-                    fig_team = px.bar(team_data, x='X_LABEL', y='ZUSCHAUER', text='ZUSCHAUER', 
-                                      color='SAISON', color_discrete_map=color_map, 
-                                      title=f"Alle Heimspiele von {auswahl}")
+                fig_team = px.bar(team_data, x='X_LABEL', y='ZUSCHAUER', text='ZUSCHAUER', 
+                                    color='SAISON', color_discrete_map=color_map, 
+                                    title=f"Alle Heimspiele von {auswahl}")
                     
-                    fig_team.update_traces(textposition='outside')
-                    fig_team.update_layout(
-                        xaxis=dict(fixedrange=True),
-                        xaxis_tickangle=-45,
-                        yaxis_range=[0, team_data['ZUSCHAUER'].max() * 1.25], 
-                        yaxis=dict(fixedrange=True, nticks=10, exponentformat="none"),
-                        margin=dict(b=100)
-                    )
+                fig_team.update_traces(textposition='outside')
+                fig_team.update_layout(
+                    xaxis=dict(fixedrange=True),
+                    xaxis_tickangle=-45,
+                    yaxis_range=[0, team_data['ZUSCHAUER'].max() * 1.25], 
+                    yaxis=dict(fixedrange=True, nticks=10, exponentformat="none"),
+                    margin=dict(b=100)
+                )
                     
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
