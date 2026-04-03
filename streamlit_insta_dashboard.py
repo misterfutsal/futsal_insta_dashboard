@@ -100,9 +100,13 @@ with tab_insta:
             "MSV Bonner Lions"
         ]
         df_excluded = df_latest_display[~df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
-        df_latest_display = df_latest_display[~df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)]
+        df_excluded['RANG'] = df_excluded['RANG'].astype(str)
+        df_excluded['FOLLOWER'] = df_excluded['FOLLOWER'].apply(lambda x: f"{int(x):,}".replace(",", "."))
+        df_excluded['STAND'] = df_excluded['DATE'].apply(lambda x: x.strftime('%d.%m.%Y'))
+        
 
         # Sortiere Mainfraime
+        df_latest_display = df_latest_display[~df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)]
         df_latest_display['RANG'] = df_latest_display['RANG'].astype(str)
         df_latest_display['FOLLOWER'] = df_latest_display['FOLLOWER'].apply(lambda x: f"{int(x):,}".replace(",", "."))
         df_latest_display['STAND'] = df_latest_display['DATE'].apply(lambda x: x.strftime('%d.%m.%Y'))
@@ -407,7 +411,7 @@ with tab_insta:
             ]
         })
 
-        # --- NEU: Ausgeschlossene Vereine anzeigen ---
+        # --- Teil 4: Ausgeschlossene Vereine anzeigen ---
         st.divider()
         st.subheader("🚫 Inaktive oder aussortierte Instagram Profile")
        # df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
