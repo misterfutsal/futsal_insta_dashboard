@@ -241,7 +241,6 @@ with tab_insta:
             # Geringstes Wachstum 
             fig_loss = px.bar(
                 df_trend[~df_trend['CLUB_NAME'].isin(liste_ausschluss_trend)].sort_values(by='Zuwachs', ascending=True).head(10), 
-                #df_trend[df_trend['CLUB_NAME'] != 'DJK Würmtal Planegg'].sort_values(by='Zuwachs', ascending=True).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
                 title=f"📉 Geringstes Wachstum ({zeit_auswahl})", # Überschrift ändert sich von Zauberhand! ✨
@@ -282,7 +281,7 @@ with tab_insta:
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
             subtext = "Deutsche Futsal Seiten mit einer Aktivität innerhalb der letzten 6 Monate - für inaktive Profile siehe ganz unten"
-            st.markdown(f"<span style='font-size: 14px; color: yellow;'>{subtext}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='font-size: 14px; color: grey;'>{subtext}</span>", unsafe_allow_html=True)
 
             # Hinweis anzeigen
             if st.session_state.selected_club_from_chart:
