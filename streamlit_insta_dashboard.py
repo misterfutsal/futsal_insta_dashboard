@@ -406,6 +406,32 @@ with tab_insta:
     else: 
         st.error("Instagram-Daten konnten nicht geladen werden.")
 
+        # --- NEU: Ausgeschlossene Vereine anzeigen ---
+        st.divider()
+        st.subheader("🚫 Ausgeschlossene Vereine (liste_ausschluss_inaktiv)")
+        df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
+
+        if not df_excluded.empty:
+            df_excluded_display = df_excluded[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']]
+            excluded_styled = df_excluded_display.style.apply(highlight_selected_row, axis=1)
+            st.dataframe(
+                excluded_styled,
+                column_config={
+                    "RANG": st.column_config.TextColumn("Rang"),
+                    "URL": st.column_config.LinkColumn("Instagram", display_text=r"https://www.instagram.com/([^/?#]+)"),
+                    "FOLLOWER": st.column_config.TextColumn("Follower"),
+                    "STAND": st.column_config.TextColumn("Stand")
+                },
+                hide_index=True,
+                use_container_width=True,
+                height=(len(df_excluded_display) + 1) * 35 + 3
+            )
+        else:
+            st.info("Keine ausgeschlossenen Vereine in der aktuellen Datenbasis gefunden.")
+
+    else: 
+        st.error("Instagram-Daten konnten nicht geladen werden.")
+
 # --- TAB 2: ZUSCHAUER ---
 with tab_zuschauer:
     df_z = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
