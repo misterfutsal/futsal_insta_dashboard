@@ -410,7 +410,7 @@ with tab_insta:
         if not df_excluded.empty:
             df_excluded_display = df_excluded[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']]
             excluded_styled = df_excluded_display.style.apply(highlight_selected_row, axis=1)
-            st.dataframe(
+            excluded_selection = st.dataframe(
                 excluded_styled,
                 column_config={
                     "RANG": st.column_config.TextColumn("Rang"),
@@ -419,9 +419,61 @@ with tab_insta:
                     "STAND": st.column_config.TextColumn("Stand")
                 },
                 hide_index=True,
+                on_select="rerun",
+                selection_mode="multi-row",
                 use_container_width=True,
                 height=(len(df_excluded_display) + 1) * 35 + 3
             )
+            
+            # Detailanalyse für ausgeschlossene Vereine
+            if excluded_selection and excluded_selection.selection.rows:
+                sel_excluded_clubs = df_excluded_display.iloc[excluded_selection.selection.rows]['CLUB_NAME'].tolist()
+                plot_data_ex = df_insta[df_insta['CLUB_NAME'].isin(sel_excluded_clubs)].sort_values(['CLUB_NAME', 'DATE'])
+                fig_detail_ex = px.line(plot_data_ex, x='DATE', y='FOLLOWER', color='CLUB_NAME', title="Vergleich der ausgeschlossenen Vereine", markers=True)
+                
+                # Layout wie im Hauptteil
+                if not plot_data_ex.empty:
+                    y_max = plot_data_ex['FOLLOWER'].max()
+                    y_min = plot_data_ex['FOLLOWER'].min()
+                    diff = y_max - y_min
+                    if diff == 0: diff = y_max * 0.1
+                    y_range = [y_min - (diff * 0.05), y_max + (diff * 0.15)]
+                    fig_detail_ex.update_yaxes(range=y_range)
+                
+                fig_detail_ex.update_layout(
+                    xaxis_title=None,
+                    xaxis=dict(
+                        tickformat="%d.%m.%Y",
+                        fixedrange=True,
+                        nticks=20,
+                        tickmode="auto",
+                        tickangle=-45,
+                        showgrid=False,
+                        gridcolor='lightgray'
+                    ),
+                    yaxis=dict(
+                        fixedrange=True
+                    ),
+                    dragmode=False,
+                    legend_title_text=None
+                )
+                
+                fig_detail_ex.update_traces(cliponaxis=False)
+                
+                st.plotly_chart(
+                    fig_detail_ex, 
+                    use_container_width=True,
+                    config={
+                        'displayModeBar': True,
+                        'scrollZoom': False,
+                        'displaylogo': False,
+                        'modeBarButtonsToRemove': [
+                            'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d'
+                        ]
+                    }
+                )
+            else:
+                st.info("💡 Klicke auf Zeilen in der Tabelle, um den Verlauf zu sehen.")
         else:
             st.info("Keine ausgeschlossenen Vereine in der aktuellen Datenbasis gefunden.")
 
