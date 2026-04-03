@@ -275,7 +275,6 @@ with tab_insta:
 
             # Daten vorbereiten (nur Spalten, die wir anzeigen wollen)
             liste_ausschluss_inaktiv = [
-                'DJK Würmtal Planegg',
                 "MSV Bonner Lions"
             ]
             df_view = df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']]
@@ -405,7 +404,7 @@ with tab_insta:
 
         # --- NEU: Ausgeschlossene Vereine anzeigen ---
         st.divider()
-        st.subheader("🚫 Ausgeschlossene Vereine (liste_ausschluss_inaktiv)")
+        st.subheader("🚫 Inaktive oder aussortierte Instagram Profile")
         df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
 
         if not df_excluded.empty:
