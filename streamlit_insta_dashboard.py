@@ -212,14 +212,14 @@ with tab_insta:
         
         with top_row_col2:
             # Liste Ausschluss von Top Down
-            liste_ausschluss = [
+            liste_ausschluss_trend = [
                 'DJK Würmtal Planegg',
                 "MSV Bonner Lions"
             ]
             
             # Geringstes Wachstum 
             fig_loss = px.bar(
-                df_trend[~df_trend['CLUB_NAME'].isin(liste_ausschluss)].sort_values(by='Zuwachs', ascending=True).head(10), 
+                df_trend[~df_trend['CLUB_NAME'].isin(liste_ausschluss_trend)].sort_values(by='Zuwachs', ascending=True).head(10), 
                 #df_trend[df_trend['CLUB_NAME'] != 'DJK Würmtal Planegg'].sort_values(by='Zuwachs', ascending=True).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
@@ -253,7 +253,7 @@ with tab_insta:
         
         row1_col1, row1_col2 = st.columns(2, gap="medium")
         #h_tables = 2150
-        
+
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
             
@@ -274,7 +274,12 @@ with tab_insta:
                 return [color] * len(row)
 
             # Daten vorbereiten (nur Spalten, die wir anzeigen wollen)
+            liste_ausschluss_inaktiv = [
+                'DJK Würmtal Planegg',
+                "MSV Bonner Lions"
+            ]
             df_view = df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']]
+            df_view = df_view[~df_view['CLUB_NAME'].isin(liste_ausschluss_inaktiv)]
             
             # Styling anwenden
             styled_df = df_view.style.apply(highlight_selected_row, axis=1)
