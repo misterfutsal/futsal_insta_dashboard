@@ -94,7 +94,7 @@ with tab_insta:
 
         
         # ==========================================
-        # --- TAB 1: INSTAGRAM ---
+        #               TAB 1: INSTAGRAM
         # ==========================================
         
         #df_latest.insert(0, 'RANG', range(1, len(df_latest) + 1))
@@ -281,6 +281,7 @@ with tab_insta:
 
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
+            st.markdown(f"<span style='font-size: 12px; color: grey;'>{text}</span>", unsafe_allow_html=True)
             st.markdown(f" :grey[Deutsche Futsal Seiten mit einer Aktivität innerhalb der letzten 6 Monate - für inaktive Profile siehe ganz unten]")
             # Hinweis anzeigen
             if st.session_state.selected_club_from_chart:
