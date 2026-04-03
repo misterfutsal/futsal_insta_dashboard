@@ -99,7 +99,7 @@ with tab_insta:
         liste_ausschluss_inaktiv = [
             "MSV Bonner Lions"
         ]
-        df_excluded = df_latest_display[~df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
+        df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
         df_excluded['RANG'] = df_excluded['RANG'].astype(str)
         df_excluded['FOLLOWER'] = df_excluded['FOLLOWER'].apply(lambda x: f"{int(x):,}".replace(",", "."))
         df_excluded['STAND'] = df_excluded['DATE'].apply(lambda x: x.strftime('%d.%m.%Y'))
