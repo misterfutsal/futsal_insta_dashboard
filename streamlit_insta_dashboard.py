@@ -97,7 +97,8 @@ with tab_insta:
 
         # Entferne inaktive CLubs und speichere diese separat
         liste_ausschluss_inaktiv = [
-            "MSV Bonner Lions"
+            "MSV Bonner Lions",
+            "Beton Boys",
         ]
         df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
         df_excluded.insert(0, 'RANG', range(1, len(df_excluded) + 1))
