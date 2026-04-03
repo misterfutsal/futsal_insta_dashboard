@@ -272,7 +272,7 @@ with tab_insta:
 
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
-            
+            st.markdown(f" :grey[Deutsche Futsal Seiten mit einem Post innerhalb der letzten 6 Monate]")
             # Hinweis anzeigen
             if st.session_state.selected_club_from_chart:
                 st.info(f"👉 Markiert: **{st.session_state.selected_club_from_chart}** (Scrollen Sie in der Liste, falls nicht sichtbar)")
