@@ -403,10 +403,10 @@ with tab_insta:
             ]
         })
 
-    else: 
+    else:
         st.error("Instagram-Daten konnten nicht geladen werden.")
 
-        # --- NEU: Ausgeschlossene Vereine anzeigen ---
+        # --- TEIL 4: Ausgeschlossene Vereine anzeigen ---
         st.divider()
         st.subheader("🚫 Ausgeschlossene Vereine (liste_ausschluss_inaktiv)")
         df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
