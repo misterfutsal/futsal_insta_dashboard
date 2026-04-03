@@ -282,8 +282,8 @@ with tab_insta:
         with row1_col1:
             st.subheader("🏆 Aktuelles Ranking")
             subtext = "Deutsche Futsal Seiten mit einer Aktivität innerhalb der letzten 6 Monate - für inaktive Profile siehe ganz unten"
-            st.markdown(f"<span style='font-size: 12px; color: grey;'>{subtext}</span>", unsafe_allow_html=True)
-            st.markdown(f" :grey[Deutsche Futsal Seiten mit einer Aktivität innerhalb der letzten 6 Monate - für inaktive Profile siehe ganz unten]")
+            st.markdown(f"<span style='font-size: 14px; color: yellow;'>{subtext}</span>", unsafe_allow_html=True)
+
             # Hinweis anzeigen
             if st.session_state.selected_club_from_chart:
                 st.info(f"👉 Markiert: **{st.session_state.selected_club_from_chart}** (Scrollen Sie in der Liste, falls nicht sichtbar)")
