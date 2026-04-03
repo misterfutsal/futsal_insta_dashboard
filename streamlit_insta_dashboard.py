@@ -279,7 +279,7 @@ with tab_insta:
                 "MSV Bonner Lions"
             ]
             df_view = df_latest_display[['RANG', 'CLUB_NAME', 'URL', 'FOLLOWER', 'STAND']]
-            df_view = df_view[~df_view['CLUB_NAME'].isin(liste_ausschluss_inaktiv)]
+            #df_view = df_view[~df_view['CLUB_NAME'].isin(liste_ausschluss_inaktiv)]
             
             # Styling anwenden
             styled_df = df_view.style.apply(highlight_selected_row, axis=1)
