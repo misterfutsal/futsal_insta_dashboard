@@ -78,7 +78,7 @@ else:
 
 # Header-Bereich
 try: 
-    st.image("Banner_Dashboard.jpg", width=600)
+    st.image("futsal-dashboard_banner.png", width=600)
 except: 
     st.title("⚽ Futsal Dashboard") 
 
