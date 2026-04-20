@@ -102,7 +102,7 @@ with tab_insta:
 
         # Entferne inaktive CLubs und speichere diese separat
         liste_ausschluss_inaktiv = [
-            "MSV Bonner Lions",
+            #"MSV Bonner Lions",
             "Beton Boys ",
         ]
         df_excluded = df_latest_display[df_latest_display['CLUB_NAME'].isin(liste_ausschluss_inaktiv)].copy()
@@ -234,8 +234,8 @@ with tab_insta:
         with top_row_col2:
             # Liste Ausschluss von Top Down
             liste_ausschluss_trend = [
-                'DJK Würmtal Planegg',
-                "MSV Bonner Lions"
+                'DJK Würmtal Planegg'
+                #"MSV Bonner Lions"
             ]
             
             # Geringstes Wachstum 
