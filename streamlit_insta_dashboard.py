@@ -208,7 +208,7 @@ with tab_insta:
                 df_trend.sort_values(by='Zuwachs', ascending=False).head(10), 
                 x='Zuwachs', y='CLUB_NAME_SHORT', 
                 orientation='h', 
-                title=f"🚀 Top 10 Gewinner ({zeit_auswahl})",  # Überschrift ändert sich von Zauberhand! ✨
+                title=f"🚀 Top 10 Gewinner Yes ({zeit_auswahl})",  # Überschrift ändert sich von Zauberhand! ✨
                 color_discrete_sequence=['#00CC96'], 
                 text='Zuwachs',
                 custom_data=['CLUB_NAME'] 
@@ -221,10 +221,20 @@ with tab_insta:
                 yaxis_title=None,
                 clickmode='event+select',
                 dragmode=False,
-                margin=dict(l=0, r=0, t=40, b=0)
+                margin=dict(l=0, r=0, t=40, b=0),
+                uniformtext_minsize=14,
+                uniformtext_mode='show'
             )
             
-            fig_win.update_traces(textposition='inside', insidetextanchor='start', textfont_color='black', textangle=0)
+            fig_win.update_traces(
+                textposition='auto',
+                insidetextanchor='start',
+                texttemplate='%{text}',
+                textfont=dict(size=14),
+                insidetextfont=dict(color='black'),
+                outsidetextfont=dict(color='white'),
+                textangle=0
+            )
             
             # Event Listener
             event_win = st.plotly_chart(fig_win, use_container_width=True, on_select="rerun", selection_mode="points", key="chart_win")
@@ -256,9 +266,19 @@ with tab_insta:
                 yaxis_title=None,
                 clickmode='event+select',
                 dragmode=False,
-                margin=dict(l=0, r=0, t=40, b=0)
+                margin=dict(l=0, r=0, t=40, b=0),
+                uniformtext_minsize=14,
+                uniformtext_mode='show'
             )
-            fig_loss.update_traces(textposition='inside', insidetextanchor='start', textfont_color='black', textangle=-0)
+            fig_loss.update_traces(
+                textposition='auto',
+                insidetextanchor='start',
+                texttemplate='%{text}',
+                textfont=dict(size=14),
+                insidetextfont=dict(color='black'),
+                outsidetextfont=dict(color='white'),
+                textangle=-0
+            )
             
             # Event Listener
             event_loss = st.plotly_chart(fig_loss, use_container_width=True, on_select="rerun", selection_mode="points", key="chart_loss")
