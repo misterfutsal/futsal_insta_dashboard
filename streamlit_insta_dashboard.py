@@ -5,6 +5,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import plotly.express as px
 from datetime import datetime, timedelta
 import streamlit.components.v1 as components
+import requests
+from bs4 import BeautifulSoup
 
 # --- Konfiguration ---
 INSTA_SHEET_ID = "1_Ni1ALTrq3qkgXxgBaG2TNjRBodCEaYewhhTPq0aWfU"
@@ -59,6 +61,51 @@ def load_data(sheet_id, secret_key):
         st.error(f"Fehler beim Laden der Daten: {e}")
         return pd.DataFrame()
 
+# --- FUNKTION: ZUSCHAUERREKORDE VON WEBSITE SCRAPEN ---
+@st.cache_data(ttl=3600)
+def scrape_zuschauerrekorde():
+    try:
+        response = requests.get("https://misterfutsal.de/zuschauerrekorde/", timeout=10)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Finde die Tabelle
+        table = soup.find('table')
+        if not table:
+            return pd.DataFrame()
+        
+        rows = []
+        for tr in table.find_all('tr')[1:]:  # Überspringe Header
+            tds = tr.find_all('td')
+            if len(tds) >= 5:
+                try:
+                    rang = tds[0].text.strip()
+                    datum = tds[1].text.strip()
+                    partie = tds[2].text.strip()
+                    ort = tds[3].text.strip()
+                    zuschauer = int(tds[4].text.strip().replace('.', '').replace(',', ''))
+                    
+                    rows.append({
+                        'RANG': int(rang),
+                        'DATUM': datum,
+                        'PARTIE': partie,
+                        'HALLE': ort,
+                        'ZUSCHAUER': zuschauer,
+                        'QUELLE': 'misterfutsal.de'
+                    })
+                except (ValueError, AttributeError):
+                    continue
+        
+        if rows:
+            df = pd.DataFrame(rows)
+            # Versuche Datum zu parsen
+            df['DATUM'] = pd.to_datetime(df['DATUM'], format='%d.%m.%Y', errors='coerce')
+            return df
+        return pd.DataFrame()
+    except Exception as e:
+        st.error(f"Fehler beim Scrapen der Zuschauerrekorde: {e}")
+        return pd.DataFrame()
+
 # ==========================================
 # 1. DATEN-VORBEREITUNG (INSTAGRAM)
 # ==========================================
@@ -88,7 +135,7 @@ st.divider()
 # ==========================================
 # 2. REITER / TABS
 # ==========================================
-tab_insta, tab_zuschauer = st.tabs(["📸 Instagram Follower", "🏟️ Bundesliga Zuschauer"])
+tab_insta, tab_zuschauer, tab_rekorde = st.tabs(["📸 Instagram Follower", "🏟️ Bundesliga Zuschauer", "🏆 Zuschauer-Rekorde"])
 with tab_insta:
     if not df_insta.empty:
 
@@ -715,6 +762,79 @@ with tab_zuschauer:
                     st.plotly_chart(fig_team, use_container_width=True)
     else: 
         st.error("Zuschauer-Daten konnten nicht geladen werden.")
+
+# ==========================================
+# 3. REITER: ZUSCHAUER-REKORDE
+# ==========================================
+with tab_rekorde:
+    st.markdown("### 🏆 Futsal Zuschauer-Rekorde")
+    st.markdown("Spiele sortiert nach Zuschauerzahl (absteigend)")
+    st.divider()
+    
+    # Lade Daten von misterfutsal.de
+    df_website = scrape_zuschauerrekorde()
+    
+    # Lade Daten aus Google Sheets (Zuschauertabelle)
+    df_google = load_data(ZUSCHAUER_SHEET_ID, "gcp_service_account")
+    
+    # Verarbeite Google Sheets Daten
+    if not df_google.empty:
+        # Konvertiere Zuschauer zu numerisch
+        if 'ZUSCHAUER' in df_google.columns:
+            df_google['ZUSCHAUER'] = pd.to_numeric(df_google['ZUSCHAUER'], errors='coerce').fillna(0)
+        
+        if 'DATUM' in df_google.columns:
+            df_google['DATUM'] = pd.to_datetime(df_google['DATUM'], dayfirst=True, errors='coerce')
+        
+        # Transformiere Google Sheets Daten
+        df_google_transformed = df_google[['DATUM', 'HEIM', 'GAST', 'ZUSCHAUER']].copy()
+        df_google_transformed.columns = ['DATUM', 'HEIM', 'GAST', 'ZUSCHAUER']
+        df_google_transformed['PARTIE'] = df_google_transformed['HEIM'] + ' – ' + df_google_transformed['GAST']
+        if 'HALLE' in df_google.columns:
+            df_google_transformed['HALLE'] = df_google['HALLE']
+        else:
+            df_google_transformed['HALLE'] = ''
+        df_google_transformed['QUELLE'] = 'Google Sheets (Bundesliga)'
+        
+        # Wähle relevante Spalten für df_google_transformed
+        df_google_for_display = df_google_transformed[['DATUM', 'PARTIE', 'HALLE', 'ZUSCHAUER', 'QUELLE']].copy()
+    else:
+        df_google_for_display = pd.DataFrame()
+    
+    # Kombiniere beide Datenquellen
+    if not df_website.empty and not df_google_for_display.empty:
+        df_website_for_display = df_website[['DATUM', 'PARTIE', 'HALLE', 'ZUSCHAUER', 'QUELLE']].copy()
+        df_combined = pd.concat([df_website_for_display, df_google_for_display], ignore_index=True)
+    elif not df_website.empty:
+        df_combined = df_website[['DATUM', 'PARTIE', 'HALLE', 'ZUSCHAUER', 'QUELLE']].copy()
+    elif not df_google_for_display.empty:
+        df_combined = df_google_for_display
+    else:
+        df_combined = pd.DataFrame()
+    
+    if not df_combined.empty:
+        # Entferne Duplikate: Behalte misterfutsal.de Einträge bei (diese sind zuerst)
+        df_combined = df_combined.drop_duplicates(subset=['DATUM', 'PARTIE'], keep='first').reset_index(drop=True)
+        
+        # Sortiere nach Zuschauern (absteigend)
+        df_combined = df_combined.sort_values('ZUSCHAUER', ascending=False).reset_index(drop=True)
+        df_combined['RANG'] = range(1, len(df_combined) + 1)
+        
+        # Formatiere Datum und Zuschauer für Anzeige
+        df_display = df_combined.copy()
+        df_display['DATUM_STR'] = df_display['DATUM'].dt.strftime('%d.%m.%Y')
+        df_display['ZUSCHAUER_STR'] = df_display['ZUSCHAUER'].apply(lambda x: f"{int(x):,}".replace(',', '.') if pd.notna(x) else '-')
+        
+        # Zeige Tabelle
+        display_cols = ['RANG', 'DATUM_STR', 'PARTIE', 'HALLE', 'ZUSCHAUER_STR']
+        df_table = df_display[display_cols].copy()
+        df_table.columns = ['Rang', 'Datum', 'Partie', 'Halle', 'Zuschauer']
+        
+        # Berechne Tabellenhohe um alle Zeilen anzuzeigen (Header + Zeilen)
+        table_height = 35 + (len(df_table) * 35)  # Header + ~35px pro Zeile
+        st.dataframe(df_table, use_container_width=True, hide_index=True, height=table_height)
+    else:
+        st.warning("Keine Zuschauer-Rekorde konnten geladen werden.")
 
 
 
