@@ -149,7 +149,6 @@ with tab_insta:
 
         # Entferne inaktive CLubs und speichere diese separat
         liste_ausschluss_inaktiv = [
-            #"MSV Bonner Lions",
             "Beton Boys ",
             "TSV Neuried"
         ]
@@ -292,7 +291,7 @@ with tab_insta:
         with top_row_col2:
             # Liste Ausschluss von Top Down
             liste_ausschluss_trend = [
-                'DJK Würmtal Planegg',
+               # 'DJK Würmtal Planegg',
                 "TSV Neuried"
             ]
             
