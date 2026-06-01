@@ -181,8 +181,8 @@ with tab_insta:
             [
                 "Letzte 14 Tage",
                 "Letzte 30 Tage",
-                # "Letzte 60 Tage",
-                # "Letzte 90 Tage",
+                "Letzte 60 Tage",
+                "Letzte 90 Tage",
                 # "Letztes Jahr",
                 "Seit Datenaufzeichnung (15.01.2026)"
             ],
@@ -292,8 +292,8 @@ with tab_insta:
         with top_row_col2:
             # Liste Ausschluss von Top Down
             liste_ausschluss_trend = [
-                'DJK Würmtal Planegg'
-                #"MSV Bonner Lions"
+                'DJK Würmtal Planegg',
+                "TSV Neuried"
             ]
             
             # Geringstes Wachstum 
