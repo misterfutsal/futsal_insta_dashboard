@@ -292,7 +292,8 @@ with tab_insta:
             # Liste Ausschluss von Top Down
             liste_ausschluss_trend = [
                # 'DJK Würmtal Planegg',
-                "Futsal Dragons Augsburg"
+                "Futsal Dragons Augsburg",
+                "TSV Neuried",
             ]
             
             # Geringstes Wachstum 
