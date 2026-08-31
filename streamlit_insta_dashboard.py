@@ -858,7 +858,7 @@ with tab_rekorde:
         df_g["PARTIE"] = df_g["HEIM"] + " – " + df_g["GAST"]
         if "HALLE" not in df_g.columns:
             df_g["HALLE"] = ""
-        df_g["QUELLE"] = "Google Sheets (Bundesliga)"https://github.com/misterfutsal/futsal_insta_dashboard/blob/main/streamlit_insta_dashboard.py
+        df_g["QUELLE"] = "Google Sheets (Bundesliga)"
         frames.append(df_g[REKORD_COLS])
 
     if not frames:
