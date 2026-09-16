@@ -56,7 +56,6 @@ INAKTIVE_CLUBS = [
     "Futsal Dragons Augsburg",
     "Longericher SC",
     "MSV Bonner Lions",
-    "Eintrachht Südring Frauen",
 ]
 
 # Vereine, die aus dem "Geringstes Wachstum"-Chart fliegen
